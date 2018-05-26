@@ -87,7 +87,7 @@ public class DeviceServiceImpl implements DeviceService{
          * "address" : "{address}", "isIdle" : false, "isStopped" : false,
          * "createdAt" : ISODate("2018-05-03T13:26:31.912Z"), "updatedAt" : ISODate("2018-05-03T13:26:31.912Z") } }
          */
-        BasicDBObject attributes = new BasicDBObject();
+        //BasicDBObject attributes = new BasicDBObject();
         latestLocation.put("gprmc",devicePosition.getGprmc());
         latestLocation.put("name",devicePosition.getName());
         latestLocation.put("deviceId",devicePosition.getDeviceId());
@@ -104,7 +104,7 @@ public class DeviceServiceImpl implements DeviceService{
         latestLocation.put("address",devicePosition.getAddress());
         latestLocation.put("location",devicePosition.getLocation());
         Update update = new Update();
-        update.set("attrs.latestLocation", latestLocation);
+        update.set("attrs.latestLocation", devicePosition);
         final Query query = new Query();
         query.addCriteria(where("imei").is(deviceId));
         UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, Device.class);

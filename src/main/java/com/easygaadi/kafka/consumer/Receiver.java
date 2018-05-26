@@ -5,6 +5,7 @@ import com.easygaadi.dao.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.bson.types.ObjectId;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,9 +95,10 @@ public final class Receiver {
                     stopTime = accountSettings.getMinStopTime() * 60000;
                 }
                 LOG.info("Loading last location");
-                DevicePosition lastLocation = objectMapper.readValue(
-                        device.getAttrs().get("latestLocation").toString(), DevicePosition.class);
+                JSONObject lastLocationJSON = objectMapper.readValue(
+                        device.getAttrs().get("latestLocation").toString(), JSONObject.class);
 
+                DevicePosition lastLocation = convertToDevicePosition(lastLocationJSON);
                 List<Double> lastCoordinates = lastLocation.getLocation().getCoordinates();
 
                 if (lastCoordinates.get(0) == currentLocation.getLongitude() &&
@@ -134,6 +136,15 @@ public final class Receiver {
         }
     }
 
-
-
+    private DevicePosition convertToDevicePosition(JSONObject lastLocationJSON) {
+        DevicePosition devicePosition = new DevicePosition();
+        devicePosition.setTotalDistance(Double.parseDouble(lastLocationJSON.get("lastLocation").toString()));
+        JSONObject loc = (JSONObject)lastLocationJSON.get("location");
+        Location location = new Location();
+        List<Double> coordinates = new ArrayList<>();
+        coordinates.add(Double.parseDouble(lastLocationJSON.get("longitude").toString()));
+        coordinates.add(Double.parseDouble(lastLocationJSON.get("latitude").toString()));
+        devicePosition.setLocation(location);
+        return devicePosition;
+    }
 }

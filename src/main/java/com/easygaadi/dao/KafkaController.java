@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -54,14 +55,68 @@ final class KafkaController {
 
     @RequestMapping(value = "/addDevicePosition", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.CREATED)
-    String addDevicePosition(final HttpServletRequest request,@RequestParam String latitude) throws JsonProcessingException {
+    String addDevicePosition(final HttpServletRequest request,@RequestParam String latitude) throws IOException {
         Map<String, String[]> requestParams = request.getParameterMap();
+        /*
+        {"gprmc":["$GPRMC,090557.000,A,1823.0244,N,07950.0309,E,6.48,36.00,260518,,*31"],
+        "name":["AP36TB5566"],
+        "uniqueId":["358511021201599"],
+        "deviceId":["3"],
+        "protocol":["gt06"],
+        "deviceTime":["1527326424524"],
+        "fixTime":["1527325557000"],
+        "valid":["true"],
+        "latitude":["18.38374"],
+        "longitude":["79.83384833333334"],
+        "altitude":["0.0"],
+        "speed":["6.479484"],
+        "course":["36.0"],
+        "statusCode":["0xF11C"],
+        "attributes":["{\"status\":70,\"ignition\":true,\"charge\":true,\"blocked\":false,\"battery\":6,\"rssi\":4,\"distance\":0.0,\"totalDistance\":7.772386046E7,\"motion\":true}"],
+        "address":["Kakatiya Thermal Power Project Main Rd, Gudadupalle, Telangana, IN"]}
+         */
+        DevicePosition devicePosition = new DevicePosition();
+        devicePosition.setGprmc(request.getParameter("gprmc"));
+        devicePosition.setName(request.getParameter("name"));
+        devicePosition.setUniqueId(request.getParameter("uniqueId"));
+        devicePosition.setDeviceId(request.getParameter("deviceId"));
+        devicePosition.setProtocol(request.getParameter("protocol"));
+        if(request.getParameter("deviceTime") != null) {
+            devicePosition.setDeviceTime(Double.parseDouble(request.getParameter("deviceTime")));
+        }
+        if(request.getParameter("fixTime") != null) {
+            devicePosition.setFixTime(Double.parseDouble(request.getParameter("fixTime")));
+        }
+        if(request.getParameter("valid") != null) {
+            devicePosition.setValid(Boolean.valueOf(request.getParameter("valid")));
+        }
+        if(request.getParameter("latitude") != null) {
+            devicePosition.setLatitude(Double.parseDouble(request.getParameter("latitude")));
+        }
+        if(request.getParameter("longitude") != null) {
+            devicePosition.setLongitude(Double.parseDouble(request.getParameter("longitude")));
+        }
+        if(request.getParameter("altitude") != null) {
+            devicePosition.setAltitude(Double.parseDouble(request.getParameter("altitude")));
+        }
+        if(request.getParameter("speed") != null) {
+            devicePosition.setSpeed(Double.parseDouble(request.getParameter("speed")));
+        }
+        devicePosition.setStatusCode(request.getParameter("statusCode"));
+        if(request.getParameter("course") != null) {
+            devicePosition.setCourse(Double.parseDouble(request.getParameter("course")));
+        }
+        //devicePosition.setAttributes(request.getParameter("attributes"));
+        devicePosition.setAddress(request.getParameter("address"));
+        if(request.getParameter("attributes") != null) {
+            BasicDBObject attributes = objectMapper.readValue(request.getParameter("attributes"), BasicDBObject.class);
+            devicePosition.setAttributes(attributes);
+        }
         LOGGER.info("GET: request params {}", objectMapper.writeValueAsString(requestParams));
-        LOGGER.info("GET: request param names {} ", request.getParameterNames());
-        LOGGER.info("GET: latitude {}", latitude);
         BasicDBObject position = new BasicDBObject();
-       // sender.send(position.toString());
-        //LOGGER.info("sending", position.toString());
+        String value =  objectMapper.writeValueAsString(devicePosition);
+        sender.send(value);
+        LOGGER.info("sending: {}",value);
         return "Sent";
     }
 }

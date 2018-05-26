@@ -90,11 +90,11 @@ public final class Receiver {
                     accountGPSSettings.put(device.getAccountId(), accountSettings);
                 }
                 long idealTime = 20 * 60000;
-                if (accountSettings.getMinStopTime() != 0) {
+                if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
                     idealTime = accountSettings.getMinStopTime() * 60000;
                 }
                 long stopTime = 30 * 60000;
-                if (accountSettings.getMinStopTime() != 0) {
+                if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
                     stopTime = accountSettings.getMinStopTime() * 60000;
                 }
 

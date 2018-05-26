@@ -14,10 +14,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public final class Receiver {
@@ -97,7 +94,7 @@ public final class Receiver {
 
                 Object object = device.getAttrs().get("latestLocation");
                 LOG.info("Loading last location {} --- {}", object.getClass(), object.toString());
-                JSONObject lastLocationJSON = objectMapper.readValue(object.toString(), JSONObject.class);
+                Map lastLocationJSON = (LinkedHashMap) object;
 
                 DevicePosition lastLocation = convertToDevicePosition(lastLocationJSON);
                 List<Double> lastCoordinates = lastLocation.getLocation().getCoordinates();
@@ -137,10 +134,10 @@ public final class Receiver {
         }
     }
 
-    private DevicePosition convertToDevicePosition(JSONObject lastLocationJSON) {
+    private DevicePosition convertToDevicePosition(Map lastLocationJSON) {
         DevicePosition devicePosition = new DevicePosition();
         devicePosition.setTotalDistance(Double.parseDouble(lastLocationJSON.get("lastLocation").toString()));
-        JSONObject loc = (JSONObject)lastLocationJSON.get("location");
+        Map loc = (Map)lastLocationJSON.get("location");
         Location location = new Location();
         List<Double> coordinates = new ArrayList<>();
         coordinates.add(Double.parseDouble(lastLocationJSON.get("longitude").toString()));

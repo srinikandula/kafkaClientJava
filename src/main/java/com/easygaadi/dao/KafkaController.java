@@ -1,6 +1,8 @@
 package com.easygaadi.dao;
 
 import com.easygaadi.kafka.producer.Sender;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -29,6 +31,9 @@ final class KafkaController {
     @Autowired
     private Sender sender;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @RequestMapping(value = "/send", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     String send(@RequestBody @Valid JSONObject todoEntry) {
@@ -49,9 +54,9 @@ final class KafkaController {
 
     @RequestMapping(value = "/addDevicePosition", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.CREATED)
-    String addDevicePosition(final HttpServletRequest request,@RequestParam String latitude) {
+    String addDevicePosition(final HttpServletRequest request,@RequestParam String latitude) throws JsonProcessingException {
         Map<String, String[]> requestParams = request.getParameterMap();
-        LOGGER.info("GET: request params {}", requestParams.toString());
+        LOGGER.info("GET: request params {}", objectMapper.writeValueAsString(requestParams));
         LOGGER.info("GET: request param names {} ", request.getParameterNames());
         LOGGER.info("GET: latitude {}", latitude);
         BasicDBObject position = new BasicDBObject();

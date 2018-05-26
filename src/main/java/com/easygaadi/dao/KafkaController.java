@@ -55,7 +55,7 @@ final class KafkaController {
         LOGGER.info("GET: request param names ", request.getParameterNames());
         BasicDBObject position = new BasicDBObject();
        // sender.send(position.toString());
-        LOGGER.info("sending", position.toString());
+        //LOGGER.info("sending", position.toString());
         return "Sent";
     }
 }

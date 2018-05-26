@@ -37,6 +37,14 @@ final class KafkaController {
 
     @RequestMapping(value = "/addDevicePosition", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
+    String addDevicePositionPOST(@RequestBody JSONObject position) {
+        sender.send(position.toString());
+        LOGGER.info("sending", position.toString());
+        return "Sent";
+    }
+
+    @RequestMapping(value = "/addDevicePosition", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.CREATED)
     String addDevicePosition(@RequestBody JSONObject position) {
         sender.send(position.toString());
         LOGGER.info("sending", position.toString());

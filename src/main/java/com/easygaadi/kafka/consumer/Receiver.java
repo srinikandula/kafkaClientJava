@@ -67,6 +67,7 @@ public final class Receiver {
                 coordinates.add(Double.parseDouble(currentLocation.get("longitude").toString()));
                 coordinates.add(Double.parseDouble(currentLocation.get("latitude").toString()));
                 location.put("coordinates", coordinates);
+                location.put("type","Point");
                 currentLocation.put("location", location);
 
                 //device.getAttrs().put("latestLocation", objectMapper.writeValueAsString(currentPosition));
@@ -102,15 +103,15 @@ public final class Receiver {
                         if (lastCoordinates.get(0) == Double.parseDouble(currentLocation.get("longitude").toString()) &&
                                 lastCoordinates.get(1) == Double.parseDouble(currentLocation.get("latitude").toString())) {
                             LOG.info("Same as old location");
-                    /*if (lastLocation.isIdle()) {
-                        if (System.currentTimeMillis() - lastLocation.getUpdatedAt().getMillis() > stopTime) {
-                            currentPosition.setIdle(true);
-                            currentPosition.setStopped(true);
-                        }
-                    } else {
-                        currentPosition.setIdle(false);
-                        currentPosition.setStopped(false);
-                    }*/
+                            /*if (lastLocation.isIdle()) {
+                                if (System.currentTimeMillis() - lastLocation.getUpdatedAt().getMillis() > stopTime) {
+                                    currentPosition.setIdle(true);
+                                    currentPosition.setStopped(true);
+                                }
+                            } else {
+                                currentPosition.setIdle(false);
+                                currentPosition.setStopped(false);
+                            }*/
                         } else { //calculate the distance travelled
                             currentLocation.put("isIdle", false);
                             currentLocation.put("isStopped", false);
@@ -126,12 +127,13 @@ public final class Receiver {
                             mongoTemplate.save(currentLocation, "devicePositions");
                         }
                     } else {
-                        LOG.info("Setting location to device position");
+                        LOG.info("no location was found in the last location");
                         Map<String, Object>  location = new HashMap<>();
                         List<Double> coordinates = new ArrayList<>();
                         coordinates.add(Double.parseDouble(currentLocation.get("longitude").toString()));
                         coordinates.add(Double.parseDouble(currentLocation.get("latitude").toString()));
-                        location.put("location",coordinates);
+                        location.put("coordinates",coordinates);
+                        location.put("type","Point");
                         currentLocation.put("location", location);
                     }
                 }catch (Exception e){

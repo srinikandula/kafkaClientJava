@@ -1,10 +1,7 @@
 package com.easygaadi.kafka.consumer;
 
 
-import com.easygaadi.dao.Device;
-import com.easygaadi.dao.DeviceService;
-import com.easygaadi.dao.GpsSettings;
-import com.easygaadi.dao.GpsSettingsRepository;
+import com.easygaadi.dao.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mongodb.BasicDBObject;
@@ -13,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -62,13 +57,7 @@ public final class Receiver {
                 LOG.warn("no last location was found");
                 currentLocation.put("distance", 0);
                 currentLocation.put("totalDistance", 0);
-                Map<String, Object> location = new HashMap<>();
-                List<Double> coordinates = new ArrayList<>();
-                coordinates.add(Double.parseDouble(currentLocation.get("longitude").toString()));
-                coordinates.add(Double.parseDouble(currentLocation.get("latitude").toString()));
-                location.put("coordinates", coordinates);
-                location.put("type","Point");
-                currentLocation.put("location", location);
+                KafkaController.createLocation(currentLocation);
 
                 //device.getAttrs().put("latestLocation", objectMapper.writeValueAsString(currentPosition));
                 if(!deviceService.updateLatestLocation(device.getImei(), currentLocation)){
@@ -112,6 +101,7 @@ public final class Receiver {
                                 currentPosition.setIdle(false);
                                 currentPosition.setStopped(false);
                             }*/
+                            return;
                         } else { //calculate the distance travelled
                             currentLocation.put("isIdle", false);
                             currentLocation.put("isStopped", false);
@@ -128,13 +118,7 @@ public final class Receiver {
                         }
                     } else {
                         LOG.info("no location was found in the last location");
-                        Map<String, Object>  location = new HashMap<>();
-                        List<Double> coordinates = new ArrayList<>();
-                        coordinates.add(Double.parseDouble(currentLocation.get("longitude").toString()));
-                        coordinates.add(Double.parseDouble(currentLocation.get("latitude").toString()));
-                        location.put("coordinates",coordinates);
-                        location.put("type","Point");
-                        currentLocation.put("location", location);
+                        KafkaController.createLocation(currentLocation);
                     }
                 }catch (Exception e){
                     e.printStackTrace();

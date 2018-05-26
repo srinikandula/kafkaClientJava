@@ -16,12 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/kafka")
-final class KafkaController {
+public final class KafkaController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaController.class);
 
@@ -118,15 +119,22 @@ final class KafkaController {
             Map<String,Object> attributes = objectMapper.readValue(request.getParameter("attributes"), Map.class);
             devicePosition.put("attributes", attributes);
         }
-        Location location = new Location();
-        List<Double> coordinates = new ArrayList<>();
-        coordinates.add((double)devicePosition.get("latitude")); // CHECK THE ORDER
-        coordinates.add((double)devicePosition.get("longitude"));
-        location.setCoordinates(coordinates);
+        createLocation(devicePosition);
+
         LOGGER.info("GET: request params {}", objectMapper.writeValueAsString(requestParams));
        // String value =  objectMapper.writeValueAsString(devicePosition);
        // sender.send(value);
         receiver.process(request.getParameter("uniqueId"), devicePosition);
         return "Sent";
+    }
+
+    public static void createLocation(BasicDBObject devicePosition) {
+        Map<String, Object> location = new HashMap<>();
+        List<Double> coordinates = new ArrayList<>();
+        coordinates.add(Double.parseDouble(devicePosition.get("longitude").toString()));
+        coordinates.add(Double.parseDouble(devicePosition.get("latitude").toString()));
+        location.put("coordinates", coordinates);
+        location.put("type","Point");
+        devicePosition.put("location", location);
     }
 }

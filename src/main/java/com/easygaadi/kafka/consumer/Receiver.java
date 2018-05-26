@@ -136,7 +136,7 @@ public final class Receiver {
 
     private DevicePosition convertToDevicePosition(Map lastLocationJSON) {
         DevicePosition devicePosition = new DevicePosition();
-        devicePosition.setTotalDistance(Double.parseDouble(lastLocationJSON.get("lastLocation").toString()));
+        devicePosition.setTotalDistance(Double.parseDouble(lastLocationJSON.get("totalDistance").toString()));
         Map loc = (Map)lastLocationJSON.get("location");
         Location location = new Location();
         List<Double> coordinates = new ArrayList<>();

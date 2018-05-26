@@ -97,11 +97,12 @@ public final class Receiver {
                 Map lastLocationJSON = (LinkedHashMap) object;
 
                 DevicePosition lastLocation = convertToDevicePosition(lastLocationJSON);
-                List<Double> lastCoordinates = lastLocation.getLocation().getCoordinates();
+                if(lastLocation.getLocation() != null){
+                    List<Double> lastCoordinates = lastLocation.getLocation().getCoordinates();
 
-                if (lastCoordinates.get(0) == currentLocation.getLongitude() &&
-                        lastCoordinates.get(1) == currentLocation.getLatitude()) {
-                    LOG.info("Same as old location");
+                    if (lastCoordinates.get(0) == currentLocation.getLongitude() &&
+                            lastCoordinates.get(1) == currentLocation.getLatitude()) {
+                        LOG.info("Same as old location");
                     /*if (lastLocation.isIdle()) {
                         if (System.currentTimeMillis() - lastLocation.getUpdatedAt().getMillis() > stopTime) {
                             currentPosition.setIdle(true);
@@ -111,25 +112,34 @@ public final class Receiver {
                         currentPosition.setIdle(false);
                         currentPosition.setStopped(false);
                     }*/
-                } else { //calculate the distance travelled
-                    currentLocation.setIdle(false);
-                    currentLocation.setStopped(false);
+                    } else { //calculate the distance travelled
+                        currentLocation.setIdle(false);
+                        currentLocation.setStopped(false);
 
-                    double lastLatitude = lastCoordinates.get(1);
-                    double lastLongitude = lastCoordinates.get(0);
-                    double currentLatitude = currentLocation.getLatitude();
-                    double currentLongitude = currentLocation.getLongitude();
-                    //position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
-                    currentLocation.setDistance(1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude - lastLatitude) * Math.PI / 180 / 2), 2) + Math.cos(lastLatitude * Math.PI / 180) * Math.cos(currentLatitude * Math.PI / 180) * Math.pow(Math.sin((currentLongitude - lastLongitude) * Math.PI / 180 / 2), 2))));
-                    currentLocation.setTotalDistance(lastLocation.getTotalDistance() + currentLocation.getDistance());
-                    devicePositionRepository.save(currentLocation);
-                    if(!deviceService.updateLatestLocation(device.getImei(), currentLocation)){
-                        LOG.error("FAIL....");
-                    } else {
-                        LOG.info("Done...");
+                        double lastLongitude = lastCoordinates.get(0);
+                        double lastLatitude = lastCoordinates.get(1);
+                        double currentLatitude = currentLocation.getLatitude();
+                        double currentLongitude = currentLocation.getLongitude();
+                        //position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
+                        currentLocation.setDistance(1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude - lastLatitude) * Math.PI / 180 / 2), 2) + Math.cos(lastLatitude * Math.PI / 180) * Math.cos(currentLatitude * Math.PI / 180) * Math.pow(Math.sin((currentLongitude - lastLongitude) * Math.PI / 180 / 2), 2))));
+                        currentLocation.setTotalDistance(lastLocation.getTotalDistance() + currentLocation.getDistance());
+                        devicePositionRepository.save(currentLocation);
                     }
-                    LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}", currentLocation.getUniqueId(), currentLocation.getTotalDistance(), currentLocation.getDistance());
+                } else {
+                    LOG.info("Setting location to device position");
+                    Location location = new Location();
+                    List<Double> coordinates = new ArrayList<>();
+                    coordinates.add(currentLocation.getLongitude());
+                    coordinates.add(currentLocation.getLatitude());
+                    location.setCoordinates(coordinates);
+                    currentLocation.setLocation(location);
                 }
+                if(!deviceService.updateLatestLocation(device.getImei(), currentLocation)){
+                    LOG.error("FAIL....");
+                } else {
+                    LOG.info("Done...");
+                }
+                LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}", currentLocation.getUniqueId(), currentLocation.getTotalDistance(), currentLocation.getDistance());
             }
         }
     }

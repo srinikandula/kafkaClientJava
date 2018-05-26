@@ -59,6 +59,5 @@ public class DevicePosition extends AbstractDocument {
     private double longitude;
     private double latitude;
     private BasicDBObject location;
-    private BasicDBObject attributes;
 
 }

@@ -104,7 +104,7 @@ public class DeviceServiceImpl implements DeviceService{
         latestLocation.put("address",devicePosition.getAddress());
         latestLocation.put("location",devicePosition.getLocation());
         Update update = new Update();
-        update.set("attrs.latestLocation", devicePosition);
+        update.set("attrs.latestLocation", latestLocation);
         final Query query = new Query();
         query.addCriteria(where("imei").is(deviceId));
         UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, Device.class);

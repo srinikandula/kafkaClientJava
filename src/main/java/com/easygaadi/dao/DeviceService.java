@@ -1,6 +1,9 @@
 package com.easygaadi.dao;
 
+import com.mongodb.BasicDBObject;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * This interface declares the methods that provides CRUD operations for
@@ -47,5 +50,5 @@ public interface DeviceService {
     Device update(Device todo);
 
     Device findByImei(String imei);
-    boolean updateLatestLocation(String deviceId, DevicePosition devicePosition);
+    boolean updateLatestLocation(String deviceId, BasicDBObject devicePosition);
 }

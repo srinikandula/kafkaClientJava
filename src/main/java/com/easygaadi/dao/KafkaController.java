@@ -81,52 +81,52 @@ final class KafkaController {
         "attributes":["{\"status\":70,\"ignition\":true,\"charge\":true,\"blocked\":false,\"battery\":6,\"rssi\":4,\"distance\":0.0,\"totalDistance\":7.772386046E7,\"motion\":true}"],
         "address":["Kakatiya Thermal Power Project Main Rd, Gudadupalle, Telangana, IN"]}
          */
-        DevicePosition devicePosition = new DevicePosition();
-        devicePosition.setGprmc(request.getParameter("gprmc"));
-        devicePosition.setName(request.getParameter("name"));
-        devicePosition.setUniqueId(request.getParameter("uniqueId"));
-        devicePosition.setDeviceId(request.getParameter("deviceId"));
-        devicePosition.setProtocol(request.getParameter("protocol"));
-        if(request.getParameter("deviceTime") != null) {
-            devicePosition.setDeviceTime(Double.parseDouble(request.getParameter("deviceTime")));
+        BasicDBObject devicePosition = new BasicDBObject();
+        devicePosition.put("gprmc", request.getParameter("gprmc"));
+        devicePosition.put("name", request.getParameter("name"));
+        devicePosition.put("uniqueId", request.getParameter("uniqueId"));
+        devicePosition.put("deviceId", request.getParameter("deviceId"));
+        devicePosition.put("protocol", request.getParameter("protocol"));
+       if(request.getParameter("deviceTime") != null) {
+            devicePosition.put("deviceTime", Double.parseDouble(request.getParameter("deviceTime")));
         }
         if(request.getParameter("fixTime") != null) {
-            devicePosition.setFixTime(Double.parseDouble(request.getParameter("fixTime")));
+            devicePosition.put("fixTime", Double.parseDouble(request.getParameter("fixTime")));
         }
         if(request.getParameter("valid") != null) {
-            devicePosition.setValid(Boolean.valueOf(request.getParameter("valid")));
+            devicePosition.put("valid", Boolean.valueOf(request.getParameter("valid")));
         }
         if(request.getParameter("latitude") != null) {
-            devicePosition.setLatitude(Double.parseDouble(request.getParameter("latitude")));
+            devicePosition.put("latitude", Double.parseDouble(request.getParameter("latitude")));
         }
         if(request.getParameter("longitude") != null) {
-            devicePosition.setLongitude(Double.parseDouble(request.getParameter("longitude")));
+            devicePosition.put("longitude", Double.parseDouble(request.getParameter("longitude")));
         }
         if(request.getParameter("altitude") != null) {
-            devicePosition.setAltitude(Double.parseDouble(request.getParameter("altitude")));
+            devicePosition.put("altitude", Double.parseDouble(request.getParameter("altitude")));
         }
         if(request.getParameter("speed") != null) {
-            devicePosition.setSpeed(Double.parseDouble(request.getParameter("speed")));
+            devicePosition.put("speed", Double.parseDouble(request.getParameter("speed")));
         }
-        devicePosition.setStatusCode(request.getParameter("statusCode"));
+        devicePosition.put("statusCode", request.getParameter("statusCode"));
         if(request.getParameter("course") != null) {
-            devicePosition.setCourse(Double.parseDouble(request.getParameter("course")));
+            devicePosition.put("course", Double.parseDouble(request.getParameter("course").toString()));
         }
         //devicePosition.setAttributes(request.getParameter("attributes"));
-        devicePosition.setAddress(request.getParameter("address"));
+        devicePosition.put("address", request.getParameter("address"));
         if(request.getParameter("attributes") != null) {
             Map<String,Object> attributes = objectMapper.readValue(request.getParameter("attributes"), Map.class);
-            devicePosition.setAttrs(attributes);
+            devicePosition.put("attributes", attributes);
         }
         Location location = new Location();
         List<Double> coordinates = new ArrayList<>();
-        coordinates.add(devicePosition.getLatitude()); // CHECK THE ORDER
-        coordinates.add(devicePosition.getLongitude());
+        coordinates.add((double)devicePosition.get("latitude")); // CHECK THE ORDER
+        coordinates.add((double)devicePosition.get("longitude"));
         location.setCoordinates(coordinates);
         LOGGER.info("GET: request params {}", objectMapper.writeValueAsString(requestParams));
        // String value =  objectMapper.writeValueAsString(devicePosition);
        // sender.send(value);
-        receiver.process(devicePosition);
+        receiver.process(request.getParameter("uniqueId"), devicePosition);
         return "Sent";
     }
 }

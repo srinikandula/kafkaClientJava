@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -69,8 +70,7 @@ public class DeviceServiceImpl implements DeviceService{
     }
 
     @Override
-    public boolean updateLatestLocation(String deviceId, DevicePosition devicePosition) {
-        BasicDBObject latestLocation = new BasicDBObject();
+    public boolean updateLatestLocation(String deviceId, BasicDBObject latestLocation) {
         /**
          * { "latestLocation" : { "location" : { "type" : "Point",
          * "coordinates" : [ 80.081215, 14.272182777777777 ] },
@@ -87,8 +87,8 @@ public class DeviceServiceImpl implements DeviceService{
          * "address" : "{address}", "isIdle" : false, "isStopped" : false,
          * "createdAt" : ISODate("2018-05-03T13:26:31.912Z"), "updatedAt" : ISODate("2018-05-03T13:26:31.912Z") } }
          */
-        //BasicDBObject attributes = new BasicDBObject();
-        latestLocation.put("gprmc",devicePosition.getGprmc());
+        /*//BasicDBObject attributes = new BasicDBObject();
+        latestLocation.put("gprmc",devicePosition.get("gprmc").toString());
         latestLocation.put("name",devicePosition.getName());
         latestLocation.put("deviceId",devicePosition.getDeviceId());
         latestLocation.put("uniqueId",devicePosition.getUniqueId());
@@ -102,7 +102,7 @@ public class DeviceServiceImpl implements DeviceService{
         latestLocation.put("distance",devicePosition.getDistance());
         latestLocation.put("totalDistance",devicePosition.getTotalDistance());
         latestLocation.put("address",devicePosition.getAddress());
-        latestLocation.put("location",devicePosition.getLocation());
+        latestLocation.put("location",devicePosition.getLocation());*/
         Update update = new Update();
         update.set("attrs.latestLocation", latestLocation);
         final Query query = new Query();

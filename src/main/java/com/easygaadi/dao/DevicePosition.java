@@ -1,9 +1,12 @@
 package com.easygaadi.dao;
 
 import com.mongodb.BasicDBObject;
+import com.sun.corba.se.spi.ior.ObjectKey;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.Map;
 
 /**
  * var devicePositions = new mongoose.Schema({
@@ -58,6 +61,6 @@ public class DevicePosition extends AbstractDocument {
     private double totalDistance;
     private double longitude;
     private double latitude;
-    private Location location;
-    private Attributes attributes;
+    private Map<String, Object> location;
+    private Map<String, Object> attributes;
 }

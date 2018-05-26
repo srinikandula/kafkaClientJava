@@ -147,13 +147,14 @@ public final class Receiver {
     private DevicePosition convertToDevicePosition(Map lastLocationJSON) {
         DevicePosition devicePosition = new DevicePosition();
         devicePosition.setTotalDistance(Double.parseDouble(lastLocationJSON.get("totalDistance").toString()));
-        Map loc = (Map)lastLocationJSON.get("location");
-        Location location = new Location();
+        Location loc = (Location)lastLocationJSON.get("location");
+        /*Location location = new Location();
         if(loc != null && loc.get("coordinates") != null) {
             List<Double> coordinates = (List<Double>)loc.get("coordinates");
             location.setCoordinates(coordinates);
             devicePosition.setLocation(location);
-        }
+        }*/
+        devicePosition.setLocation(loc);
         return devicePosition;
     }
 }

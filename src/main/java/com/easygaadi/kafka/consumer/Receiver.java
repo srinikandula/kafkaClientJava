@@ -94,9 +94,10 @@ public final class Receiver {
                 if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
                     stopTime = accountSettings.getMinStopTime() * 60000;
                 }
-                LOG.info("Loading last location");
-                JSONObject lastLocationJSON = objectMapper.readValue(
-                        device.getAttrs().get("latestLocation").toString(), JSONObject.class);
+
+                Object object = device.getAttrs().get("latestLocation");
+                LOG.info("Loading last location {} --- {}", object.getClass(), object.toString());
+                JSONObject lastLocationJSON = objectMapper.readValue(object.toString(), JSONObject.class);
 
                 DevicePosition lastLocation = convertToDevicePosition(lastLocationJSON);
                 List<Double> lastCoordinates = lastLocation.getLocation().getCoordinates();

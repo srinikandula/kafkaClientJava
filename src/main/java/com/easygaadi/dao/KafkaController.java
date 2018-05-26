@@ -49,10 +49,10 @@ final class KafkaController {
 
     @RequestMapping(value = "/addDevicePosition", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.CREATED)
-    String addDevicePosition(final HttpServletRequest request) {
-
+    String addDevicePosition(final HttpServletRequest request,@RequestParam String latitude) {
         Map<String, String[]> requestParams = request.getParameterMap();
         LOGGER.info("GET: request params ", requestParams.toString());
+        LOGGER.info("GET: request param names ", request.getParameterNames());
         BasicDBObject position = new BasicDBObject();
        // sender.send(position.toString());
         LOGGER.info("sending", position.toString());

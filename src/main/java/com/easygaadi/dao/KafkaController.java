@@ -1,5 +1,6 @@
 package com.easygaadi.dao;
 
+import com.easygaadi.kafka.consumer.Receiver;
 import com.easygaadi.kafka.producer.Sender;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -31,6 +34,9 @@ final class KafkaController {
 
     @Autowired
     private Sender sender;
+
+    @Autowired
+    private Receiver receiver;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -55,7 +61,7 @@ final class KafkaController {
 
     @RequestMapping(value = "/addDevicePosition", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.CREATED)
-    String addDevicePosition(final HttpServletRequest request,@RequestParam String latitude) throws IOException {
+    String addDevicePosition(final HttpServletRequest request,@RequestParam String latitude) throws Exception {
         Map<String, String[]> requestParams = request.getParameterMap();
         /*
         {"gprmc":["$GPRMC,090557.000,A,1823.0244,N,07950.0309,E,6.48,36.00,260518,,*31"],
@@ -112,11 +118,15 @@ final class KafkaController {
             Map<String,Object> attributes = objectMapper.readValue(request.getParameter("attributes"), Map.class);
             devicePosition.setAttrs(attributes);
         }
+        Location location = new Location();
+        List<Double> coordinates = new ArrayList<>();
+        coordinates.add(devicePosition.getLatitude()); // CHECK THE ORDER
+        coordinates.add(devicePosition.getLongitude());
+        location.setCoordinates(coordinates);
         LOGGER.info("GET: request params {}", objectMapper.writeValueAsString(requestParams));
-        BasicDBObject position = new BasicDBObject();
-        String value =  objectMapper.writeValueAsString(devicePosition);
-        sender.send(value);
-        LOGGER.info("sending: {}",value);
+       // String value =  objectMapper.writeValueAsString(devicePosition);
+       // sender.send(value);
+        receiver.process(devicePosition);
         return "Sent";
     }
 }

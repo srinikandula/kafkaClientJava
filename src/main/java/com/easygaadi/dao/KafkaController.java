@@ -109,7 +109,7 @@ final class KafkaController {
         //devicePosition.setAttributes(request.getParameter("attributes"));
         devicePosition.setAddress(request.getParameter("address"));
         if(request.getParameter("attributes") != null) {
-            Map<String,String> attributes = objectMapper.readValue(request.getParameter("attributes"), Map.class);
+            Map<String,Object> attributes = objectMapper.readValue(request.getParameter("attributes"), Map.class);
             devicePosition.setAttrs(attributes);
         }
         LOGGER.info("GET: request params {}", objectMapper.writeValueAsString(requestParams));

@@ -51,7 +51,7 @@ public abstract class AbstractDocument {
     private String updatedBy;
 
     @Field(KEY_ATTRIBUTES)
-    private Map<String, String> attrs = new HashMap<>();
+    private Map<String, Object> attrs = new HashMap<>();
 
     public void merge(final Object copy) throws Exception {
         BeanUtils.copyProperties(copy, this, getNullPropertyNames(copy));

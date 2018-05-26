@@ -45,4 +45,7 @@ public interface DeviceService {
      * @throws TodoNotFoundException if no dao entry is found.
      */
     Device update(Device todo);
+
+    Device findByImei(String imei);
+    boolean updateLatestLocation(String deviceId, DevicePosition devicePosition);
 }

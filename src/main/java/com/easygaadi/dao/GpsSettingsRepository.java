@@ -1,5 +1,6 @@
 package com.easygaadi.dao;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -7,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
  * objects.
  * @author Petri Kainulainen
  */
-public interface DeviceRepository extends CrudRepository<Device, String> {
-    Device findByImei(String imei);
+public interface GpsSettingsRepository extends CrudRepository<GpsSettings, String> {
+    GpsSettings findByAccountId(ObjectId accountId);
 
 }

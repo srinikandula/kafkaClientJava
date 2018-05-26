@@ -1,9 +1,9 @@
 package com.easygaadi.dao;
 
-import com.easygaadi.dao.AbstractDocument;
-import com.mongodb.client.model.geojson.Position;
+import com.mongodb.BasicDBObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * var devicePositions = new mongoose.Schema({
@@ -37,19 +37,19 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-
-public class DevicePositions extends AbstractDocument {
+@Document(collection = "devicePositions")
+public class DevicePosition extends AbstractDocument {
     private String gprmc;
     private String name;
     private String uniqueId;
     private String deviceId;
     private String protocol;
-    private long deviceTime;
-    private long fixTime;
+    private double deviceTime;
+    private double fixTime;
     private boolean valid;
     private String altitude;
-    private long speed;
-    private long course;
+    private double speed;
+    private double course;
     private String statusCode;
     private String address;
     private boolean idle;
@@ -58,5 +58,7 @@ public class DevicePositions extends AbstractDocument {
     private double totalDistance;
     private double longitude;
     private double latitude;
-    private Position location;
+    private BasicDBObject location;
+    private BasicDBObject attributes;
+
 }

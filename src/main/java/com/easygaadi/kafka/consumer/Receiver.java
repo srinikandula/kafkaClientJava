@@ -2,14 +2,9 @@ package com.easygaadi.kafka.consumer;
 
 
 import com.easygaadi.dao.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.model.geojson.Point;
-import com.mongodb.client.model.geojson.Position;
 import org.bson.types.ObjectId;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +13,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,12 +61,14 @@ public final class Receiver {
         } else {
 
             if(device.getAttrs().get("latestLocation") == null){
+                LOG.warn("no last location was found");
                 currentLocation.setDistance(0);
                 currentLocation.setTotalDistance(0);
-                BasicDBObject location = new BasicDBObject();
-                double coordinates[] = { currentLocation.getLongitude(), currentLocation.getLatitude()};
-                location.put("coordinates",coordinates);
-                location.put("type","Point");
+                Location location = new Location();
+                List<Double> coordinates = new ArrayList<>();
+                coordinates.add(currentLocation.getLongitude());
+                coordinates.add(currentLocation.getLatitude());
+                location.setCoordinates(coordinates);
                 currentLocation.setLocation(location);
 
                 //device.getAttrs().put("latestLocation", objectMapper.writeValueAsString(currentPosition));
@@ -97,12 +93,11 @@ public final class Receiver {
                 if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
                     stopTime = accountSettings.getMinStopTime() * 60000;
                 }
+                LOG.info("Loading last location");
+                DevicePosition lastLocation = objectMapper.readValue(
+                        device.getAttrs().get("latestLocation").toString(), DevicePosition.class);
 
-                BasicDBObject lastLocation = objectMapper.readValue(
-                        device.getAttrs().get("latestLocation").toString(), BasicDBObject.class);
-                LOG.info("got last location");
-
-                List<Double> lastCoordinates = (List<Double>)((Map)lastLocation.get("location")).get("coordinates");
+                List<Double> lastCoordinates = lastLocation.getLocation().getCoordinates();
 
                 if (lastCoordinates.get(0) == currentLocation.getLongitude() &&
                         lastCoordinates.get(1) == currentLocation.getLatitude()) {
@@ -126,7 +121,7 @@ public final class Receiver {
                     double currentLongitude = currentLocation.getLongitude();
                     //position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
                     currentLocation.setDistance(1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude - lastLatitude) * Math.PI / 180 / 2), 2) + Math.cos(lastLatitude * Math.PI / 180) * Math.cos(currentLatitude * Math.PI / 180) * Math.pow(Math.sin((currentLongitude - lastLongitude) * Math.PI / 180 / 2), 2))));
-                    currentLocation.setTotalDistance(Double.parseDouble(lastLocation.get("totalDistance").toString()) + currentLocation.getDistance());
+                    currentLocation.setTotalDistance(lastLocation.getTotalDistance() + currentLocation.getDistance());
                     devicePositionRepository.save(currentLocation);
                     if(!deviceService.updateLatestLocation(device.getImei(), currentLocation)){
                         LOG.error("FAIL....");

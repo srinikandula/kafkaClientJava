@@ -51,15 +51,6 @@ public final class KafkaController {
     }
 
 
-    @RequestMapping(value = "/addDevicePosition", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.CREATED)
-    String addDevicePositionPOST(@RequestBody JSONObject position) {
-        LOGGER.info("POST: request params ", position.toString());
-        sender.send(position.toString());
-        LOGGER.info("sending", position.toString());
-        return "Sent";
-    }
-
     @RequestMapping(value = "/addDevicePosition", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.CREATED)
     String addDevicePosition(final HttpServletRequest request,@RequestParam String latitude) throws Exception {
@@ -121,10 +112,9 @@ public final class KafkaController {
         }
         createLocation(devicePosition);
 
-        LOGGER.info("GET: request params {}", objectMapper.writeValueAsString(requestParams));
-       // String value =  objectMapper.writeValueAsString(devicePosition);
-       // sender.send(value);
-        receiver.process(request.getParameter("uniqueId"), devicePosition);
+        LOGGER.debug("GET: request params {}", objectMapper.writeValueAsString(requestParams));
+        String value =  objectMapper.writeValueAsString(devicePosition);
+        sender.send(value);
         return "Sent";
     }
 

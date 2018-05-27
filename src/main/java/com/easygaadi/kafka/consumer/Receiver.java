@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -33,17 +35,17 @@ public final class Receiver {
     public Receiver(){
         objectMapper.registerModule(new JodaModule());
     }
-    /*
+
     @KafkaListener(topics = "${app.topic.deviceLocations}")
     public void listen(@Payload String message)  {
         try {
-            //DevicePosition devicePositions = objectMapper.readValue(message, DevicePosition.class);
-            //LOG.info("address :{} ", devicePositions.getAddress());
-          //  process(devicePositions);
+            BasicDBObject devicePositions = objectMapper.readValue(message, BasicDBObject.class);
+            LOG.info("address :{} ", devicePositions.get("address"));
+            process(devicePositions.get("uniqueId").toString(), devicePositions);
         }catch (Exception e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
 
     public void process(String uniqueId, BasicDBObject currentLocation) throws Exception{
@@ -83,7 +85,6 @@ public final class Receiver {
                 }
 
                 Object object = device.getAttrs().get("latestLocation");
-                LOG.info("Loading last location {} --- {}", object.getClass(), object.toString());
                 try {
                     Map lastLocationJSON = (LinkedHashMap) object;
                     Map lastLocation = convertToDevicePosition(lastLocationJSON);

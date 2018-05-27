@@ -19,7 +19,6 @@ public class Sender {
     private String topic;
 
     public void send(String message){
-        LOG.info("sending message='{}' to topic='{}'", message, topic);
         kafkaTemplate.send(topic, message);
     }
 }

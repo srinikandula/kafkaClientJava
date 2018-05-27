@@ -122,7 +122,6 @@ public final class KafkaController {
             String value =  objectMapper.writeValueAsString(devicePosition);
             sender.send(value);
         }
-
         return "Sent";
     }
 

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections4.IteratorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -17,7 +19,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Service
 public class DeviceServiceImpl implements DeviceService{
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceServiceImpl.class);
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -107,6 +109,12 @@ public class DeviceServiceImpl implements DeviceService{
         final Query truckQuery = new Query();
         truckQuery.addCriteria(where("deviceId").is(deviceId));
         UpdateResult truckUpdateResult =  mongoTemplate.updateMulti(truckQuery, update, Truck.class);
+        if(updateResult.getModifiedCount() != 1) {
+            LOGGER.error("Error updating device with imei: {}", deviceId);
+        }
+        if(truckUpdateResult.getModifiedCount() != 1) {
+            LOGGER.error("Error updating truck with deviceId: {}", deviceId);
+        }
         return updateResult.getModifiedCount() == 1 && truckUpdateResult.getModifiedCount() ==1;
     }
 }

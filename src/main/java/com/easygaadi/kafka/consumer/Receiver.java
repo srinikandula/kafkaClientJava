@@ -124,12 +124,9 @@ public final class Receiver {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-                if(!deviceService.updateLatestLocation(device.getImei(), currentLocation)){
-                    LOG.error("FAIL....");
-                } else {
-                    LOG.info("Done...");
+                if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){
+                    LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}", currentLocation.get("uniqueId"), currentLocation.get("totalDistance"), currentLocation.get("distance"));
                 }
-                LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}", currentLocation.get("uniqueId"), currentLocation.get("totalDistance"), currentLocation.get("distance"));
             }
         }
     }

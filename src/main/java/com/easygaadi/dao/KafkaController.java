@@ -90,8 +90,7 @@ public final class KafkaController {
             devicePosition.put("valid", Boolean.valueOf(request.getParameter("valid")));
         }
 
-        if(request.getParameter("valid") != null && (
-                request.getParameter("valid") != "true" || request.getParameter("valid") != "false")){
+        if(isNumeric(request.getParameter("valid"))){
             devicePosition.put("latitude", Double.parseDouble(request.getParameter("valid")));
         } else if(request.getParameter("latitude") != null) {
             devicePosition.put("latitude", Double.parseDouble(request.getParameter("latitude")));
@@ -136,5 +135,8 @@ public final class KafkaController {
         location.put("coordinates", coordinates);
         location.put("type","Point");
         devicePosition.put("location", location);
+    }
+    private boolean isNumeric(String s) {
+        return s != null && s.matches("[-+]?\\d*\\.?\\d+");
     }
 }

@@ -89,12 +89,12 @@ public final class KafkaController {
         if(request.getParameter("valid") != null) {
             devicePosition.put("valid", Boolean.valueOf(request.getParameter("valid")));
         }
-        if(request.getParameter("latitude") != null) {
-            devicePosition.put("latitude", Double.parseDouble(request.getParameter("latitude")));
-        }
+
         if(request.getParameter("valid") != null && (
                 request.getParameter("valid") != "true" || request.getParameter("valid") != "false")){
             devicePosition.put("latitude", Double.parseDouble(request.getParameter("valid")));
+        } else if(request.getParameter("latitude") != null) {
+            devicePosition.put("latitude", Double.parseDouble(request.getParameter("latitude")));
         }
 
         if(request.getParameter("longitude") != null) {

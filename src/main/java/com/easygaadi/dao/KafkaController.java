@@ -55,6 +55,7 @@ public final class KafkaController {
     @ResponseStatus(HttpStatus.CREATED)
     String addDevicePosition(final HttpServletRequest request,@RequestParam String latitude) throws Exception {
         Map<String, String[]> requestParams = request.getParameterMap();
+        LOGGER.debug("GET: request params {}", objectMapper.writeValueAsString(requestParams));
         /*
         {"gprmc":["$GPRMC,090557.000,A,1823.0244,N,07950.0309,E,6.48,36.00,260518,,*31"],
         "name":["AP36TB5566"],
@@ -117,7 +118,7 @@ public final class KafkaController {
         }
         createLocation(devicePosition);
 
-        LOGGER.debug("GET: request params {}", objectMapper.writeValueAsString(requestParams));
+
         String value =  objectMapper.writeValueAsString(devicePosition);
         sender.send(value);
         return "Sent";

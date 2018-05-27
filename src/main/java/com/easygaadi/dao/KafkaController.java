@@ -116,11 +116,15 @@ public final class KafkaController {
             Map<String,Object> attributes = objectMapper.readValue(request.getParameter("attributes"), Map.class);
             devicePosition.put("attributes", attributes);
         }
-        createLocation(devicePosition);
+        if(Double.parseDouble(devicePosition.get("latitude").toString()) == 0 ||
+                Double.parseDouble(devicePosition.get("longitude").toString()) == 0){
+            LOGGER.error("Found 0.0 location");
+        } else {
+            createLocation(devicePosition);
+            String value =  objectMapper.writeValueAsString(devicePosition);
+            sender.send(value);
+        }
 
-
-        String value =  objectMapper.writeValueAsString(devicePosition);
-        sender.send(value);
         return "Sent";
     }
 

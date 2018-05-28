@@ -97,17 +97,17 @@ public final class Receiver {
                                 lastCoordinates.get(1) == currentLocation.getLatitude()) {
                             LOG.info("Same as old location");
                             if (currentLocation.getDeviceTime() - lastLocation.getDeviceTime() > stopTime) {
-                                currentLocation.setIdle(true);
-                                currentLocation.setStopped(true);
+                                currentLocation.setIsIdle(true);
+                                currentLocation.setIsStopped(true);
                             } else {
-                                currentLocation.setIdle(lastLocation.isIdle());
-                                currentLocation.setStopped(lastLocation.isStopped());
+                                currentLocation.setIsIdle(lastLocation.isIsIdle());
+                                currentLocation.setIsStopped(lastLocation.isIsStopped());
                             }
                             currentLocation.setDistance(0);
                             currentLocation.setTotalDistance(lastLocation.getTotalDistance());
                         } else { //calculate the distance travelled
-                            currentLocation.setIdle(false);
-                            currentLocation.setStopped(false);
+                            currentLocation.setIsIdle(false);
+                            currentLocation.setIsStopped(false);
                             double lastLongitude = lastCoordinates.get(0);
                             double lastLatitude = lastCoordinates.get(1);
                             double currentLatitude = currentLocation.getLatitude();
@@ -129,7 +129,7 @@ public final class Receiver {
                 if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){
                     LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.getUniqueId(),
                             currentLocation.getTotalDistance(), currentLocation.getDistance(),
-                            currentLocation.isStopped());
+                            currentLocation.isIsStopped());
                 }
             }
         }

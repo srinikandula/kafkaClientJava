@@ -13,6 +13,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +101,7 @@ public final class Receiver {
                             if(lastLocation.isIsStopped()){
                                 return;
                             }
-                            if (currentLocation.getCreatedAt().getMillis() - lastLocation.getCreatedAt().getMillis() > stopTime) {
+                            if (System.currentTimeMillis() - lastLocation.getCreatedAt().getMillis() > stopTime) {
                                 currentLocation.setIsIdle(true);
                                 currentLocation.setIsStopped(true);
                             } else {

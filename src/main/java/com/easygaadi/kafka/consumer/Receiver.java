@@ -27,7 +27,6 @@ public final class Receiver {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-
     @Autowired
     private GpsSettingsRepository gpsSettingsRepository;
 
@@ -96,7 +95,12 @@ public final class Receiver {
                         if (lastCoordinates.get(0) == currentLocation.getLongitude() &&
                                 lastCoordinates.get(1) == currentLocation.getLatitude()) {
                             LOG.info("Same as old location");
-                            if (currentLocation.getDeviceTime() - lastLocation.getDeviceTime() > stopTime) {
+                            // if the current location is same as the last location and is already marked as 'Stopped' do not save it in to the database
+
+                            if(lastLocation.isIsStopped()){
+                                return;
+                            }
+                            if (currentLocation.getCreatedAt().getMillis() - lastLocation.getCreatedAt().getMillis() > stopTime) {
                                 currentLocation.setIsIdle(true);
                                 currentLocation.setIsStopped(true);
                             } else {
@@ -117,8 +121,7 @@ public final class Receiver {
                             currentLocation.setDistance(distance);
                             currentLocation.setTotalDistance(lastLocation.getTotalDistance() + distance);
                         }
-                        devicePositionRepository.save(new DevicePosition());
-                        mongoTemplate.save(currentLocation, "devicePositions");
+                        devicePositionRepository.save(currentLocation);
                     } else {
                         LOG.info("no location was found in the last location");
                         KafkaController.createLocation(currentLocation);
@@ -135,32 +138,4 @@ public final class Receiver {
         }
     }
 
-    private Map<String, Object> convertToDevicePosition(Map lastLocationJSON) {
-        Map<String, Object> devicePosition = new HashMap<>();
-        if(lastLocationJSON.containsKey("totalDistance")){
-            devicePosition.put("totalDistance", (Double.parseDouble(lastLocationJSON.get("totalDistance").toString())));
-        } else {
-            devicePosition.put("totalDistance", 0);
-        }
-
-        if(lastLocationJSON.containsKey("isIdle")){
-            devicePosition.put("isIdle", (Boolean.parseBoolean(lastLocationJSON.get("isIdle").toString())));
-        } else {
-            devicePosition.put("isIdle", false);
-        }
-        if(lastLocationJSON.containsKey("isStopped")){
-            devicePosition.put("isStopped", (Boolean.parseBoolean(lastLocationJSON.get("isStopped").toString())));
-        } else {
-            devicePosition.put("isStopped", false);
-        }
-        if(lastLocationJSON.containsKey("deviceTime")){
-            devicePosition.put("deviceTime", (Double.parseDouble(lastLocationJSON.get("deviceTime").toString())));
-        }
-
-        if(lastLocationJSON.containsKey("location")){
-            Map<String, Object>  loc = (Map<String, Object>)lastLocationJSON.get("location");
-            devicePosition.put("location", loc);
-        }
-        return devicePosition;
-    }
 }

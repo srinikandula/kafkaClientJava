@@ -5,6 +5,7 @@ import com.easygaadi.dao.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mongodb.BasicDBObject;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,11 +76,11 @@ public final class Receiver {
                     accountSettings = gpsSettingsRepository.findByAccountId(new ObjectId(device.getAccountId()));
                     accountGPSSettings.put(device.getAccountId(), accountSettings);
                 }
-                long idealTime = 20 * 60000;
+                long idealTime = 10 * 60000;
                 if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
                     idealTime = accountSettings.getMinStopTime() * 60000;
                 }
-                long stopTime = 30 * 60000;
+                long stopTime = 10 * 60000;
                 if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
                     stopTime = accountSettings.getMinStopTime() * 60000;
                 }
@@ -93,16 +94,15 @@ public final class Receiver {
                         if (lastCoordinates.get(0) == Double.parseDouble(currentLocation.get("longitude").toString()) &&
                                 lastCoordinates.get(1) == Double.parseDouble(currentLocation.get("latitude").toString())) {
                             LOG.info("Same as old location");
-                            /*if (lastLocation.isIdle()) {
-                                if (System.currentTimeMillis() - lastLocation.getUpdatedAt().getMillis() > stopTime) {
-                                    currentPosition.setIdle(true);
-                                    currentPosition.setStopped(true);
-                                }
+                            if (lastLocation.get("deviceTime") != null && Double.parseDouble(currentLocation.get("deviceTime").toString()) - Double.parseDouble(lastLocation.get("deviceTime").toString()) > stopTime) {
+                                currentLocation.put("isIdle",true);
+                                currentLocation.put("isStopped",true);
                             } else {
-                                currentPosition.setIdle(false);
-                                currentPosition.setStopped(false);
-                            }*/
-                            return;
+                                currentLocation.put("isIdle",lastLocation.get("isIdle"));
+                                currentLocation.put("isStopped",lastLocation.get("isStopped"));
+                            }
+                            currentLocation.put("distance", 0);
+                            currentLocation.put("totalDistance", Double.parseDouble(lastLocation.get("totalDistance").toString()));
                         } else { //calculate the distance travelled
                             currentLocation.put("isIdle", false);
                             currentLocation.put("isStopped", false);
@@ -113,10 +113,9 @@ public final class Receiver {
                             //position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
                             double distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude - lastLatitude) * Math.PI / 180 / 2), 2) + Math.cos(lastLatitude * Math.PI / 180) * Math.cos(currentLatitude * Math.PI / 180) * Math.pow(Math.sin((currentLongitude - lastLongitude) * Math.PI / 180 / 2), 2)));
                             currentLocation.put("distance", distance);
-                            currentLocation.put("distance", distance);
-                            currentLocation.put("totalDistance", Double.parseDouble(lastLocation.get("totalDistance").toString()) + distance);;
-                            mongoTemplate.save(currentLocation, "devicePositions");
+                            currentLocation.put("totalDistance", Double.parseDouble(lastLocation.get("totalDistance").toString()) + distance);
                         }
+                        mongoTemplate.save(currentLocation, "devicePositions");
                     } else {
                         LOG.info("no location was found in the last location");
                         KafkaController.createLocation(currentLocation);
@@ -125,7 +124,9 @@ public final class Receiver {
                     e.printStackTrace();
                 }
                 if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){
-                    LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}", currentLocation.get("uniqueId"), currentLocation.get("totalDistance"), currentLocation.get("distance"));
+                    LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.get("uniqueId"),
+                            currentLocation.get("totalDistance"), currentLocation.get("distance"),
+                            currentLocation.get("isStopped"));
                 }
             }
         }
@@ -138,6 +139,21 @@ public final class Receiver {
         } else {
             devicePosition.put("totalDistance", 0);
         }
+
+        if(lastLocationJSON.containsKey("isIdle")){
+            devicePosition.put("isIdle", (Boolean.parseBoolean(lastLocationJSON.get("isIdle").toString())));
+        } else {
+            devicePosition.put("isIdle", false);
+        }
+        if(lastLocationJSON.containsKey("isStopped")){
+            devicePosition.put("isStopped", (Boolean.parseBoolean(lastLocationJSON.get("isStopped").toString())));
+        } else {
+            devicePosition.put("isStopped", false);
+        }
+        if(lastLocationJSON.containsKey("deviceTime")){
+            devicePosition.put("deviceTime", (Double.parseDouble(lastLocationJSON.get("deviceTime").toString())));
+        }
+
         if(lastLocationJSON.containsKey("location")){
             Map<String, Object>  loc = (Map<String, Object>)lastLocationJSON.get("location");
             devicePosition.put("location", loc);

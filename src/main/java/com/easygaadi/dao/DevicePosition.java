@@ -55,8 +55,8 @@ public class DevicePosition extends AbstractDocument {
     private double course;
     private String statusCode;
     private String address;
-    private boolean idle;
-    private boolean stopped;
+    private boolean isIdle;
+    private boolean isStopped;
     private double distance;
     private double totalDistance;
     private double longitude;

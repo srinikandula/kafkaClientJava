@@ -50,5 +50,5 @@ public interface DeviceService {
     Device update(Device todo);
 
     Device findByImei(String imei);
-    boolean updateLatestLocation(String deviceId, BasicDBObject devicePosition);
+    boolean updateLatestLocation(String deviceId, DevicePosition devicePosition);
 }

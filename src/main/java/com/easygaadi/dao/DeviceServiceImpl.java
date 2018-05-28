@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,7 +69,7 @@ public class DeviceServiceImpl implements DeviceService{
     }
 
     @Override
-    public boolean updateLatestLocation(String deviceId, BasicDBObject latestLocation) {
+    public boolean updateLatestLocation(String deviceId, DevicePosition latestLocation) {
         /**
          * { "latestLocation" : { "location" : { "type" : "Point",
          * "coordinates" : [ 80.081215, 14.272182777777777 ] },
@@ -103,6 +104,7 @@ public class DeviceServiceImpl implements DeviceService{
         latestLocation.put("location",devicePosition.getLocation());*/
         Update update = new Update();
         update.set("attrs.latestLocation", latestLocation);
+
         final Query query = new Query();
         query.addCriteria(where("imei").is(deviceId));
         UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, Device.class);

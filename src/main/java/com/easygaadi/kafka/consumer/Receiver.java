@@ -4,8 +4,6 @@ package com.easygaadi.kafka.consumer;
 import com.easygaadi.dao.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.mongodb.BasicDBObject;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +13,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public final class Receiver {
@@ -24,13 +24,15 @@ public final class Receiver {
 
     @Autowired
     private DeviceService deviceService;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
 
     @Autowired
     private GpsSettingsRepository gpsSettingsRepository;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
-
+    private DevicePositionRepository devicePositionRepository;
 
     private Map<String,GpsSettings> accountGPSSettings = new HashMap<>();
     public Receiver(){
@@ -40,16 +42,17 @@ public final class Receiver {
     @KafkaListener(topics = "${app.topic.deviceLocations}")
     public void listen(@Payload String message)  {
         try {
-            BasicDBObject devicePositions = objectMapper.readValue(message, BasicDBObject.class);
-            LOG.info("address :{} ", devicePositions.get("address"));
-            process(devicePositions.get("uniqueId").toString(), devicePositions);
+            DevicePosition devicePositions = objectMapper.readValue(message, DevicePosition.class);
+            process(devicePositions.getUniqueId().toString(), devicePositions);
         }catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    public void process(String uniqueId, BasicDBObject currentLocation) throws Exception{
+
+    public void process(String uniqueId, DevicePosition currentLocation) throws Exception{
+        LOG.info("uniqueId :{}", uniqueId);
         Device device = deviceService.findByImei(uniqueId);
         if(device == null){
             //unknownPositionsDAO.save(currentPosition);
@@ -58,8 +61,8 @@ public final class Receiver {
 
             if(device.getAttrs().get("latestLocation") == null){
                 LOG.warn("no last location was found");
-                currentLocation.put("distance", 0);
-                currentLocation.put("totalDistance", 0);
+                currentLocation.setDistance(0);
+                currentLocation.setTotalDistance(0);
                 KafkaController.createLocation(currentLocation);
 
                 //device.getAttrs().put("latestLocation", objectMapper.writeValueAsString(currentPosition));
@@ -87,34 +90,34 @@ public final class Receiver {
 
                 Object object = device.getAttrs().get("latestLocation");
                 try {
-                    Map lastLocationJSON = (LinkedHashMap) object;
-                    Map lastLocation = convertToDevicePosition(lastLocationJSON);
-                    if (lastLocation.get("location") != null) {
-                        List<Double> lastCoordinates = (List<Double>)((Map)lastLocation.get("location")).get("coordinates");
-                        if (lastCoordinates.get(0) == Double.parseDouble(currentLocation.get("longitude").toString()) &&
-                                lastCoordinates.get(1) == Double.parseDouble(currentLocation.get("latitude").toString())) {
+                    DevicePosition lastLocation = objectMapper.readValue(objectMapper.writeValueAsString(object), DevicePosition.class);
+                    if (lastLocation.getLocation() != null) {
+                        List<Double> lastCoordinates = (List<Double>)((Map)lastLocation.getLocation()).get("coordinates");
+                        if (lastCoordinates.get(0) == currentLocation.getLongitude() &&
+                                lastCoordinates.get(1) == currentLocation.getLatitude()) {
                             LOG.info("Same as old location");
-                            if (lastLocation.get("deviceTime") != null && Double.parseDouble(currentLocation.get("deviceTime").toString()) - Double.parseDouble(lastLocation.get("deviceTime").toString()) > stopTime) {
-                                currentLocation.put("isIdle",true);
-                                currentLocation.put("isStopped",true);
+                            if (currentLocation.getDeviceTime() - lastLocation.getDeviceTime() > stopTime) {
+                                currentLocation.setIdle(true);
+                                currentLocation.setStopped(true);
                             } else {
-                                currentLocation.put("isIdle",lastLocation.get("isIdle"));
-                                currentLocation.put("isStopped",lastLocation.get("isStopped"));
+                                currentLocation.setIdle(lastLocation.isIdle());
+                                currentLocation.setStopped(lastLocation.isStopped());
                             }
-                            currentLocation.put("distance", 0);
-                            currentLocation.put("totalDistance", Double.parseDouble(lastLocation.get("totalDistance").toString()));
+                            currentLocation.setDistance(0);
+                            currentLocation.setTotalDistance(lastLocation.getTotalDistance());
                         } else { //calculate the distance travelled
-                            currentLocation.put("isIdle", false);
-                            currentLocation.put("isStopped", false);
+                            currentLocation.setIdle(false);
+                            currentLocation.setStopped(false);
                             double lastLongitude = lastCoordinates.get(0);
                             double lastLatitude = lastCoordinates.get(1);
-                            double currentLatitude = Double.parseDouble(currentLocation.get("latitude").toString());
-                            double currentLongitude = Double.parseDouble(currentLocation.get("longitude").toString());
+                            double currentLatitude = currentLocation.getLatitude();
+                            double currentLongitude = currentLocation.getLongitude();
                             //position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
                             double distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude - lastLatitude) * Math.PI / 180 / 2), 2) + Math.cos(lastLatitude * Math.PI / 180) * Math.cos(currentLatitude * Math.PI / 180) * Math.pow(Math.sin((currentLongitude - lastLongitude) * Math.PI / 180 / 2), 2)));
-                            currentLocation.put("distance", distance);
-                            currentLocation.put("totalDistance", Double.parseDouble(lastLocation.get("totalDistance").toString()) + distance);
+                            currentLocation.setDistance(distance);
+                            currentLocation.setTotalDistance(lastLocation.getTotalDistance() + distance);
                         }
+                        devicePositionRepository.save(new DevicePosition());
                         mongoTemplate.save(currentLocation, "devicePositions");
                     } else {
                         LOG.info("no location was found in the last location");
@@ -124,9 +127,9 @@ public final class Receiver {
                     e.printStackTrace();
                 }
                 if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){
-                    LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.get("uniqueId"),
-                            currentLocation.get("totalDistance"), currentLocation.get("distance"),
-                            currentLocation.get("isStopped"));
+                    LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.getUniqueId(),
+                            currentLocation.getTotalDistance(), currentLocation.getDistance(),
+                            currentLocation.isStopped());
                 }
             }
         }

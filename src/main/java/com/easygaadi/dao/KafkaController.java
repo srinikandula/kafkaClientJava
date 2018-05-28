@@ -5,6 +5,7 @@ import com.easygaadi.kafka.producer.Sender;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
+import org.joda.time.DateTime;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/kafka")
@@ -75,6 +73,7 @@ public final class KafkaController {
         "address":["Kakatiya Thermal Power Project Main Rd, Gudadupalle, Telangana, IN"]}
          */
         BasicDBObject devicePosition = new BasicDBObject();
+        devicePosition.put("createdAt", new DateTime());
         devicePosition.put("gprmc", request.getParameter("gprmc"));
         devicePosition.put("name", request.getParameter("name"));
         devicePosition.put("uniqueId", request.getParameter("uniqueId"));
@@ -133,6 +132,16 @@ public final class KafkaController {
         location.put("coordinates", coordinates);
         location.put("type","Point");
         devicePosition.put("location", location);
+    }
+
+    public static void createLocation(DevicePosition devicePosition) {
+        Map<String, Object> location = new HashMap<>();
+        List<Double> coordinates = new ArrayList<>();
+        coordinates.add(devicePosition.getLongitude());
+        coordinates.add(devicePosition.getLatitude());
+        location.put("coordinates", coordinates);
+        location.put("type","Point");
+        devicePosition.setLocation(location);
     }
     private boolean isNumeric(String s) {
         return s != null && s.matches("[-+]?\\d*\\.?\\d+");

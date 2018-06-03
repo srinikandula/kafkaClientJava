@@ -117,6 +117,8 @@ public final class Receiver {
                                 UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, DevicePosition.class);
                                 if(updateResult.getModifiedCount() !=1){
                                     LOG.error("Failed to update stop time for uniqueId {}-{} ", lastLocation.getUniqueId(),lastLocation.getId());
+                                } else {
+                                    LOG.info("Device started moving after {}ms ", currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
                                 }
                                 return;
                             }

@@ -4,11 +4,14 @@ package com.easygaadi.kafka.consumer;
 import com.easygaadi.dao.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Service
 public final class Receiver {
@@ -102,6 +107,19 @@ public final class Receiver {
                                 return;
                             }
                         } else {
+                            if(lastLocation.isStopped()) {
+                                LOG.info("Updating stopped time in the last location");
+                                Update update = new Update();
+                                update.set("stopDuration", currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
+
+                                final Query query = new Query();
+                                query.addCriteria(where("_id").is(lastLocation.getId()));
+                                UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, DevicePosition.class);
+                                if(updateResult.getModifiedCount() !=1){
+                                    LOG.error("Failed to update stop time for uniqueId {}-{} ", lastLocation.getUniqueId(),lastLocation.getId());
+                                }
+                                return;
+                            }
                             currentLocation.setIdle(false);
                             currentLocation.setStopped(false);
                         }

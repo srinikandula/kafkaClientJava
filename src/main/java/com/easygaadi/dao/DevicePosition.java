@@ -48,6 +48,7 @@ public class DevicePosition extends AbstractDocument {
     private String deviceId;
     private String protocol;
     private double deviceTime;
+    private double stopDuration;
     private double fixTime;
     private boolean valid;
     private double altitude;

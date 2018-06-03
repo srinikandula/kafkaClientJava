@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.types.ObjectId;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +112,7 @@ public final class Receiver {
                                 LOG.info("Updating stopped time in the last location");
                                 Update update = new Update();
                                 update.set("stopDuration", currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
-
+                                update.set("updateAt", new DateTime());
                                 final Query query = new Query();
                                 query.addCriteria(where("_id").is(lastLocation.getId()));
                                 UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, DevicePosition.class);
@@ -134,6 +135,8 @@ public final class Receiver {
                         double distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude - lastLatitude) * Math.PI / 180 / 2), 2) + Math.cos(lastLatitude * Math.PI / 180) * Math.cos(currentLatitude * Math.PI / 180) * Math.pow(Math.sin((currentLongitude - lastLongitude) * Math.PI / 180 / 2), 2)));
                         currentLocation.setDistance(distance);
                         currentLocation.setTotalDistance(lastLocation.getTotalDistance() + distance);
+                        currentLocation.setCreatedAt(new DateTime());
+                        currentLocation.setUpdatedAt(new DateTime());
                         devicePositionRepository.save(currentLocation);
                     } else {
                         LOG.info("no location was found in the last location");

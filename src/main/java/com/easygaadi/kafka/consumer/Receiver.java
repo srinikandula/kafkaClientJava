@@ -118,7 +118,7 @@ public final class Receiver {
                                 if(updateResult.getModifiedCount() !=1){
                                     LOG.error("Failed to update stop time for uniqueId {}-{} ", lastLocation.getUniqueId(),lastLocation.getId());
                                 } else {
-                                    LOG.info("Device started moving after {}ms ", currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
+                                    LOG.info("Device started moving after {} - {}ms ",currentLocation.getUniqueId(), currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
                                 }
                                 return;
                             }

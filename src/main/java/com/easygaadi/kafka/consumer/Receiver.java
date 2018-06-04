@@ -83,10 +83,7 @@ public final class Receiver {
                     accountSettings = gpsSettingsRepository.findByAccountId(new ObjectId(device.getAccountId()));
                     accountGPSSettings.put(device.getAccountId(), accountSettings);
                 }
-                long idealTime = 10 * 60000;
-                if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
-                    idealTime = accountSettings.getMinStopTime() * 60000;
-                }
+                long idealTime = 1000;
                 long stopTime = 10 * 60000;
                 if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
                     stopTime = accountSettings.getMinStopTime() * 60000;
@@ -99,12 +96,9 @@ public final class Receiver {
                         List<Double> lastCoordinates = (List<Double>)((Map)lastLocation.getLocation()).get("coordinates");
                         if (currentLocation.getSpeed() == 0) {
                             LOG.info("speed is zero : STOPPED!!");
-                            // if the current location is same as the last location and is already marked as 'Stopped' do not save it in to the database
                             currentLocation.setIdle(true);
-                            currentLocation.setStopped(true);
-                            if(lastLocation.isStopped()) {
-                                LOG.info("speed is zero and not moved : Skpping");
-                                return;
+                            if(System.currentTimeMillis() - lastLocation.getDeviceTime() > stopTime){
+                                currentLocation.setStopped(true);
                             }
                         } else {
                             if(lastLocation.isStopped()) {
@@ -120,7 +114,6 @@ public final class Receiver {
                                 } else {
                                     LOG.info("Device started moving after {} - {}ms ",currentLocation.getUniqueId(), currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
                                 }
-                                return;
                             }
                             currentLocation.setIdle(false);
                             currentLocation.setStopped(false);

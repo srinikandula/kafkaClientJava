@@ -104,6 +104,7 @@ public final class Receiver {
                                         currentLocation.getTotalDistance(), currentLocation.getDistance(),
                                         currentLocation.isStopped(), currentLocation.isIdle());
                             }
+                            return;
                         } else {
                             if(lastLocation.isStopped()) {
                                 LOG.info("Updating stopped time in the last location");
@@ -130,8 +131,8 @@ public final class Receiver {
                             double distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude - lastLatitude) * Math.PI / 180 / 2), 2) + Math.cos(lastLatitude * Math.PI / 180) * Math.cos(currentLatitude * Math.PI / 180) * Math.pow(Math.sin((currentLongitude - lastLongitude) * Math.PI / 180 / 2), 2)));
                             currentLocation.setDistance(distance);
                             currentLocation.setTotalDistance(lastLocation.getTotalDistance() + distance);
+                            currentLocation = devicePositionRepository.save(currentLocation);
                         }
-                        currentLocation = devicePositionRepository.save(currentLocation);
                     } else {
                         LOG.info("no location was found in the last location");
                         KafkaController.createLocation(currentLocation);

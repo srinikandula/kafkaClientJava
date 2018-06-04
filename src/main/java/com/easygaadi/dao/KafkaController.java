@@ -115,7 +115,7 @@ public final class KafkaController {
         }
         if(Double.parseDouble(devicePosition.get("latitude").toString()) == 0 ||
                 Double.parseDouble(devicePosition.get("longitude").toString()) == 0){
-            LOGGER.error("Found 0.0 location");
+            LOGGER.error("Found 0.0 location for device {}", devicePosition.get("uniqueId").toString());
         } else {
             createLocation(devicePosition);
             String value =  objectMapper.writeValueAsString(devicePosition);

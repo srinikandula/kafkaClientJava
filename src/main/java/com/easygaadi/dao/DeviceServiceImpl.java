@@ -119,4 +119,25 @@ public class DeviceServiceImpl implements DeviceService{
         }
         return updateResult.getModifiedCount() == 1 && truckUpdateResult.getModifiedCount() ==1;
     }
+
+    @Override
+    public boolean updateLatestStatus(String deviceId, DevicePosition latestLocation) {
+        Update update = new Update();
+        update.set("attrs.latestLocation.isStopped", latestLocation.isStopped());
+        update.set("attrs.latestLocation.isIdle", latestLocation.isIdle());
+       // update.set("attrs.latestLocation.deviceTime", latestLocation.getDeviceTime());
+        final Query query = new Query();
+        query.addCriteria(where("imei").is(deviceId));
+        UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, Device.class);
+        final Query truckQuery = new Query();
+        truckQuery.addCriteria(where("deviceId").is(deviceId));
+        UpdateResult truckUpdateResult =  mongoTemplate.updateMulti(truckQuery, update, Truck.class);
+        if(updateResult.getModifiedCount() != 1) {
+            LOGGER.error("Error updating device with imei: {}", deviceId);
+        }
+        if(truckUpdateResult.getModifiedCount() != 1) {
+            LOGGER.error("Error updating truck with deviceId: {}", deviceId);
+        }
+        return updateResult.getModifiedCount() == 1 && truckUpdateResult.getModifiedCount() ==1;
+    }
 }

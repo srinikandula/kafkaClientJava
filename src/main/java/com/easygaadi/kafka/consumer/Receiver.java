@@ -100,6 +100,12 @@ public final class Receiver {
                             if(System.currentTimeMillis() - lastLocation.getDeviceTime() > stopTime){
                                 currentLocation.setStopped(true);
                             }
+                            if(deviceService.updateLatestStatus(device.getImei(), currentLocation)){
+                                LOG.info("updated latest status deviceId:{}, totalDistance :{}, distance;{}, stopped:{}, idle:{}", currentLocation.getUniqueId(),
+                                        currentLocation.getTotalDistance(), currentLocation.getDistance(),
+                                        currentLocation.isStopped(), currentLocation.isIdle());
+                            }
+                            return;
                         } else {
                             if(lastLocation.isStopped()) {
                                 LOG.info("Updating stopped time in the last location");
@@ -131,15 +137,16 @@ public final class Receiver {
                     } else {
                         LOG.info("no location was found in the last location");
                         KafkaController.createLocation(currentLocation);
+                        if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){
+                            LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.getUniqueId(),
+                                    currentLocation.getTotalDistance(), currentLocation.getDistance(),
+                                    currentLocation.isStopped());
+                        }
                     }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-                if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){
-                    LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.getUniqueId(),
-                            currentLocation.getTotalDistance(), currentLocation.getDistance(),
-                            currentLocation.isStopped());
-                }
+
             }
         }
     }

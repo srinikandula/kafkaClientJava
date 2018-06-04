@@ -63,12 +63,12 @@ public final class Receiver {
             LOG.error("unknown position: {}", currentLocation);
         } else {
 
-            if(device.getAttrs().get("latestLocation") == null){
+            if(device.getAttrs() == null || device.getAttrs().get("latestLocation") == null){
                 LOG.warn("no last location was found");
                 currentLocation.setDistance(0);
                 currentLocation.setTotalDistance(0);
                 KafkaController.createLocation(currentLocation);
-
+                currentLocation = devicePositionRepository.save(currentLocation);
                 //device.getAttrs().put("latestLocation", objectMapper.writeValueAsString(currentPosition));
                 if(!deviceService.updateLatestLocation(device.getImei(), currentLocation)){
                     LOG.error("FAIL....");
@@ -95,7 +95,6 @@ public final class Receiver {
                     if (lastLocation.getLocation() != null) {
                         List<Double> lastCoordinates = (List<Double>)((Map)lastLocation.getLocation()).get("coordinates");
                         if (currentLocation.getSpeed() == 0) {
-                            LOG.info("speed is zero : STOPPED!!");
                             currentLocation.setIdle(true);
                             if(System.currentTimeMillis() - lastLocation.getDeviceTime() > stopTime){
                                 currentLocation.setStopped(true);
@@ -133,15 +132,15 @@ public final class Receiver {
                         double distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude - lastLatitude) * Math.PI / 180 / 2), 2) + Math.cos(lastLatitude * Math.PI / 180) * Math.cos(currentLatitude * Math.PI / 180) * Math.pow(Math.sin((currentLongitude - lastLongitude) * Math.PI / 180 / 2), 2)));
                         currentLocation.setDistance(distance);
                         currentLocation.setTotalDistance(lastLocation.getTotalDistance() + distance);
-                        devicePositionRepository.save(currentLocation);
+                        currentLocation = devicePositionRepository.save(currentLocation);
                     } else {
                         LOG.info("no location was found in the last location");
                         KafkaController.createLocation(currentLocation);
-                        if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){
-                            LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.getUniqueId(),
-                                    currentLocation.getTotalDistance(), currentLocation.getDistance(),
-                                    currentLocation.isStopped());
-                        }
+                    }
+                    if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){
+                        LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.getUniqueId(),
+                                currentLocation.getTotalDistance(), currentLocation.getDistance(),
+                                currentLocation.isStopped());
                     }
                 }catch (Exception e){
                     e.printStackTrace();

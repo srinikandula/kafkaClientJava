@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections4.IteratorUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,7 +126,8 @@ public class DeviceServiceImpl implements DeviceService{
         Update update = new Update();
         update.set("attrs.latestLocation.isStopped", latestLocation.isStopped());
         update.set("attrs.latestLocation.isIdle", latestLocation.isIdle());
-       // update.set("attrs.latestLocation.deviceTime", latestLocation.getDeviceTime());
+        update.set("attrs.latestLocation.updatedAt", new DateTime());
+        // update.set("attrs.latestLocation.deviceTime", latestLocation.getDeviceTime());
         final Query query = new Query();
         query.addCriteria(where("imei").is(deviceId));
         UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, Device.class);

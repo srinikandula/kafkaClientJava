@@ -94,11 +94,14 @@ public final class Receiver {
                     DevicePosition lastLocation = objectMapper.readValue(objectMapper.writeValueAsString(object), DevicePosition.class);
                     if (lastLocation.getLocation() != null) {
                         List<Double> lastCoordinates = (List<Double>)((Map)lastLocation.getLocation()).get("coordinates");
-                        if (currentLocation.getSpeed() == 0) {
+                        Object motion = currentLocation.getAttributes().get("motion");
+                        //check if speed ==0 or motion == false
+                        if (currentLocation.getSpeed() == 0 || (motion != null && Boolean.parseBoolean(motion.toString()) == false)) {
                             currentLocation.setIdle(true);
                             if(System.currentTimeMillis() - lastLocation.getDeviceTime() > stopTime){
                                 currentLocation.setStopped(true);
                             }
+                            currentLocation.setSpeed(0);
                             //IF speed is 0 do not calculate the distance
                             currentLocation.setTotalDistance(lastLocation.getTotalDistance());
                             currentLocation = devicePositionRepository.save(currentLocation);

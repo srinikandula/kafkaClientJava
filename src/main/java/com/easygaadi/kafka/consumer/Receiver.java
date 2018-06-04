@@ -99,12 +99,16 @@ public final class Receiver {
                             if(System.currentTimeMillis() - lastLocation.getDeviceTime() > stopTime){
                                 currentLocation.setStopped(true);
                             }
+                            //IF speed is 0 do not calculate the distance
+                            currentLocation.setTotalDistance(lastLocation.getTotalDistance());
+                            currentLocation = devicePositionRepository.save(currentLocation);
+                            /*
                             if(deviceService.updateLatestStatus(device.getImei(), currentLocation)){
                                 LOG.info("updated latest status deviceId:{}, totalDistance :{}, distance;{}, stopped:{}, idle:{}", currentLocation.getUniqueId(),
                                         currentLocation.getTotalDistance(), currentLocation.getDistance(),
                                         currentLocation.isStopped(), currentLocation.isIdle());
                             }
-                            return;
+                            return;*/
                         } else {
                             if(lastLocation.isStopped()) {
                                 LOG.info("Updating stopped time in the last location");

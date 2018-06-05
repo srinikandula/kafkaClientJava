@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
+import javax.annotation.PostConstruct;
+import java.util.TimeZone;
+
 /**
  * This configuration class has three responsibilities:
  * <ol>
@@ -24,4 +27,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoAuditing
 @EnableMongoRepositories
 public class ApplicationConfig {
+    @PostConstruct
+    void started() {
+        TimeZone.setDefault(TimeZone.getTimeZone("IST"));
+    }
 }

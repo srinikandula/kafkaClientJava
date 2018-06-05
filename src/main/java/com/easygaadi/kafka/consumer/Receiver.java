@@ -57,8 +57,7 @@ public final class Receiver {
 
 
     public void process(String uniqueId, DevicePosition currentLocation) throws Exception{
-        LOG.info("uniqueId :{}", uniqueId);
-        Device device = deviceService.findByImei(uniqueId);
+       Device device = deviceService.findByImei(uniqueId);
         if(device == null){
             LOG.error("unknown position: {}", currentLocation);
         } else {
@@ -151,9 +150,9 @@ public final class Receiver {
                         KafkaController.createLocation(currentLocation);
                     }
                     if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){
-                        LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.getUniqueId(),
+                       /* LOG.info("processed deviceId:{}, totalDistance :{}, distance;{}, stopped:{}", currentLocation.getUniqueId(),
                                 currentLocation.getTotalDistance(), currentLocation.getDistance(),
-                                currentLocation.isStopped());
+                                currentLocation.isStopped());*/
                     }
                 }catch (Exception e){
                     e.printStackTrace();

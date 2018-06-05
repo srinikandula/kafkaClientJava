@@ -105,10 +105,19 @@ public final class Receiver {
                         //check if speed ==0 or motion == false
                         if (currentLocation.getSpeed() == 0) {
                             currentLocation.setIdle(true);
-                            //set last halted time on device
+                            //compare to the lastHaltedTime to currentTime
+
+                            if(device.getLastHaltedTime() != null){
+                               LOG.info("Device {} halted since {} for {}", device.getImei(), device.getLastHaltedTime(), System.currentTimeMillis() - device.getLastHaltedTime().getMillis());
+                               if(System.currentTimeMillis() - device.getLastHaltedTime().getMillis() > stopTime){
+                                    currentLocation.setStopped(true);
+                               }
+                            }
+                            //set last halted time on device if current speed is 0
                             if(lastLocation.isIdle() == false){
                                 Update update = new Update();
                                 update.set("lastHaltedTime", new DateTime());
+                                update.set("attrs.latestLocation.isStopped", currentLocation.isStopped());
                                 final Query query = new Query();
                                 query.addCriteria(where("imei").is(device.getImei()));
                                 UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, Device.class);
@@ -119,10 +128,6 @@ public final class Receiver {
                                     device = deviceService.findByImei(uniqueId);
                                 }
                             }
-                            //compare to the lastHaltedTime to currentTime
-                            if(device.getLastHaltedTime() != null && device.getLastHaltedTime().getMillis() - System.currentTimeMillis() > stopTime){
-                                currentLocation.setStopped(true);
-                            }
                             //IF speed is 0 do not calculate the distance
                             currentLocation.setTotalDistance(lastLocation.getTotalDistance());
                             currentLocation = devicePositionRepository.save(currentLocation);
@@ -131,7 +136,6 @@ public final class Receiver {
                                 LOG.info("Updating stopped time in the last location");
                                 Update update = new Update();
                                 update.set("stopDuration", System.currentTimeMillis() - device.getLastHaltedTime().getMillis());
-
                                 final Query query = new Query();
                                 query.addCriteria(where("_id").is(lastLocation.getId()));
                                 UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, DevicePosition.class);

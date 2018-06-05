@@ -92,7 +92,16 @@ public final class Receiver {
                     DevicePosition lastLocation = objectMapper.readValue(objectMapper.writeValueAsString(object), DevicePosition.class);
                     if (lastLocation.getLocation() != null) {
                         List<Double> lastCoordinates = (List<Double>)((Map)lastLocation.getLocation()).get("coordinates");
-                        Object motion = currentLocation.getAttributes().get("motion");
+
+                        double lastLongitude = lastCoordinates.get(0);
+                        double lastLatitude = lastCoordinates.get(1);
+                        double currentLatitude = currentLocation.getLatitude();
+                        double currentLongitude = currentLocation.getLongitude();
+                        //check if the location co-ordinates are same as the lastLocation
+                        if(lastLongitude == currentLongitude && lastLatitude == currentLatitude) {
+                            currentLocation.setSpeed(0);
+                        }
+
                         //check if speed ==0 or motion == false
                         if (currentLocation.getSpeed() == 0) {
                             currentLocation.setIdle(true);
@@ -135,10 +144,7 @@ public final class Receiver {
                             currentLocation.setIdle(false);
                             currentLocation.setStopped(false);
                             //calculate the distance travelled
-                            double lastLongitude = lastCoordinates.get(0);
-                            double lastLatitude = lastCoordinates.get(1);
-                            double currentLatitude = currentLocation.getLatitude();
-                            double currentLongitude = currentLocation.getLongitude();
+
                             //position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
                             double distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude - lastLatitude) * Math.PI / 180 / 2), 2) + Math.cos(lastLatitude * Math.PI / 180) * Math.cos(currentLatitude * Math.PI / 180) * Math.pow(Math.sin((currentLongitude - lastLongitude) * Math.PI / 180 / 2), 2)));
                             currentLocation.setDistance(distance);

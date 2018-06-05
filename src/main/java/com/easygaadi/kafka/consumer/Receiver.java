@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.types.ObjectId;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,6 @@ public final class Receiver {
         LOG.info("uniqueId :{}", uniqueId);
         Device device = deviceService.findByImei(uniqueId);
         if(device == null){
-            //unknownPositionsDAO.save(currentPosition);
             LOG.error("unknown position: {}", currentLocation);
         } else {
 
@@ -83,7 +83,6 @@ public final class Receiver {
                     accountSettings = gpsSettingsRepository.findByAccountId(new ObjectId(device.getAccountId()));
                     accountGPSSettings.put(device.getAccountId(), accountSettings);
                 }
-                long idealTime = 1000;
                 long stopTime = 10 * 60000;
                 if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
                     stopTime = accountSettings.getMinStopTime() * 60000;
@@ -98,24 +97,32 @@ public final class Receiver {
                         //check if speed ==0 or motion == false
                         if (currentLocation.getSpeed() == 0) {
                             currentLocation.setIdle(true);
-                            if(System.currentTimeMillis() - lastLocation.getDeviceTime() > stopTime){
+                            //set last halted time on device
+                            if(lastLocation.isIdle() == false){
+                                Update update = new Update();
+                                update.set("lastHaltedTime", new DateTime());
+                                final Query query = new Query();
+                                query.addCriteria(where("imei").is(device.getImei()));
+                                UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, Device.class);
+                                if(updateResult.getModifiedCount() !=1){
+                                    LOG.error("Failed to update lastHaltedTime on device {}-{} ", device.getImei());
+                                } else {
+                                    LOG.info("Updated lastHalted time to current time for device {}", device.getImei());
+                                    device = deviceService.findByImei(uniqueId);
+                                }
+                            }
+                            //compare to the lastHaltedTime to currentTime
+                            if(device.getLastHaltedTime() != null && device.getLastHaltedTime().getMillis() - System.currentTimeMillis() > stopTime){
                                 currentLocation.setStopped(true);
                             }
                             //IF speed is 0 do not calculate the distance
                             currentLocation.setTotalDistance(lastLocation.getTotalDistance());
                             currentLocation = devicePositionRepository.save(currentLocation);
-                            /*
-                            if(deviceService.updateLatestStatus(device.getImei(), currentLocation)){
-                                LOG.info("updated latest status deviceId:{}, totalDistance :{}, distance;{}, stopped:{}, idle:{}", currentLocation.getUniqueId(),
-                                        currentLocation.getTotalDistance(), currentLocation.getDistance(),
-                                        currentLocation.isStopped(), currentLocation.isIdle());
-                            }
-                            return;*/
                         } else {
                             if(lastLocation.isStopped()) {
                                 LOG.info("Updating stopped time in the last location");
                                 Update update = new Update();
-                                update.set("stopDuration", currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
+                                update.set("stopDuration", System.currentTimeMillis() - device.getLastHaltedTime().getMillis());
 
                                 final Query query = new Query();
                                 query.addCriteria(where("_id").is(lastLocation.getId()));

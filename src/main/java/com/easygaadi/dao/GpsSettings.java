@@ -9,6 +9,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @Document(collection = "gpssettings")
 public final class GpsSettings extends AbstractDocument{
-    private ObjectId accountId;
     private int minStopTime;
 }

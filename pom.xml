@@ -9,7 +9,7 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <start-class>com.easygaadi.TodoAppConfig</start-class>
+        <start-class>com.easygaadi.KafkaClientJava</start-class>
         <spring-kafka.version>2.1.4.RELEASE</spring-kafka.version>
     </properties>
 

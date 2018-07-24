@@ -3,6 +3,7 @@ package com.easygaadi.dao;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -10,10 +11,7 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @EqualsAndHashCode(of = { "_id" })
@@ -31,18 +29,18 @@ public abstract class AbstractDocument {
     @Field(KEY_ID)
     private String id;
 
-    private String operatorId;
+    private ObjectId accountId;
 
     @CreatedDate
     @Field(KEY_CREATED_AT)
-    private DateTime createdAt;
+    private Date createdAt;
 
     @Version
     private Long version;
 
     @LastModifiedDate
     @Field(KEY_UPDATED_AT)
-    private DateTime updatedAt;
+    private Date updatedAt;
 
     @CreatedBy
     private String createdBy;

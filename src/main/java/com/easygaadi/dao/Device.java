@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @Document(collection = "devices")
 public final class Device extends AbstractDocument {
-    private String accountId;
     private String imei;
     private DateTime lastHaltedTime;
 }

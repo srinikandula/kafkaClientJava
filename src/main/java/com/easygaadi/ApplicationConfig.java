@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import java.util.TimeZone;
@@ -26,9 +27,10 @@ import java.util.TimeZone;
 @Configuration
 @EnableMongoAuditing
 @EnableMongoRepositories
+@EnableScheduling
 public class ApplicationConfig {
     @PostConstruct
     void started() {
-        TimeZone.setDefault(TimeZone.getTimeZone("IST"));
+        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
     }
 }

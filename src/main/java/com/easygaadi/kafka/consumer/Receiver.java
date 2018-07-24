@@ -30,6 +30,7 @@ public final class Receiver {
 
     @Autowired
     private DeviceService deviceService;
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -62,6 +63,7 @@ public final class Receiver {
             LOG.error("unknown position: {}", currentLocation);
         } else {
 
+            currentLocation.setAccountId(device.getAccountId());
             if(device.getAttrs() == null || device.getAttrs().get("latestLocation") == null){
                 LOG.warn("no last location was found");
                 currentLocation.setDistance(0);
@@ -79,8 +81,8 @@ public final class Receiver {
                 //LOG.error("address : {}", devicePosition.getAddress());
                 GpsSettings accountSettings = accountGPSSettings.get(device.getAccountId());
                 if(accountSettings == null){
-                    accountSettings = gpsSettingsRepository.findByAccountId(new ObjectId(device.getAccountId()));
-                    accountGPSSettings.put(device.getAccountId(), accountSettings);
+                    accountSettings = gpsSettingsRepository.findByAccountId(device.getAccountId());
+                    accountGPSSettings.put(device.getAccountId().toString(), accountSettings);
                 }
                 long stopTime = 10 * 60000;
                 if (accountSettings != null && accountSettings.getMinStopTime() != 0) {
@@ -156,7 +158,7 @@ public final class Receiver {
                             currentLocation = devicePositionRepository.save(currentLocation);
                         }
                     } else {
-                        LOG.info("no location was found in the last location");
+                        LOG.info("no location was found in GPS Data");
                         KafkaController.createLocation(currentLocation);
                     }
                     if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){

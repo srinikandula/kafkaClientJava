@@ -48,6 +48,7 @@ public final class Receiver {
     @KafkaListener(topics = "${app.topic.deviceLocations}")
     public void listen(@Payload String message)  {
         try {
+            LOG.info("parsing payload "+ message);
             DevicePosition devicePositions = objectMapper.readValue(message, DevicePosition.class);
             process(devicePositions.getUniqueId().toString(), devicePositions);
         }catch (Exception e) {

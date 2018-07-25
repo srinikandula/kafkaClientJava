@@ -6,6 +6,7 @@ import com.easygaadi.dao.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mongodb.client.result.UpdateResult;
+import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,7 @@ public final class Receiver {
                 //LOG.error("address : {}", devicePosition.getAddress());
                 GpsSettings accountSettings = accountGPSSettings.get(device.getAccountId());
                 if(accountSettings == null){
-                    accountSettings = gpsSettingsRepository.findByAccountId(device.getAccountId());
+                    accountSettings = gpsSettingsRepository.findByAccountId(new ObjectId(device.getAccountId()));
                     accountGPSSettings.put(device.getAccountId().toString(), accountSettings);
                 }
                 long stopTime = 10 * 60000;

@@ -29,7 +29,7 @@ public abstract class AbstractDocument {
     @Field(KEY_ID)
     private String id;
 
-    private ObjectId accountId;
+    private String accountId;
 
     @CreatedDate
     @Field(KEY_CREATED_AT)

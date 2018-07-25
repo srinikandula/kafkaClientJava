@@ -1,7 +1,5 @@
 package com.easygaadi.dao;
 
-import com.mongodb.BasicDBObject;
-import com.sun.corba.se.spi.ior.ObjectKey;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;

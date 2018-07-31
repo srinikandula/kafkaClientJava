@@ -93,12 +93,17 @@ public class SchedulerService {
                             List<Criteria> match = new ArrayList<>();
                             Criteria criteria = new Criteria();
                             List<Double> coordinates = (List<Double>)geoFence.getGeoLocation().get("coordinates");
+                            double raidus = 0.1;
+                            //convert meters to kilometers
+                            if(geoFence.getRadius() != 0){
+                                raidus = geoFence.getRadius()/100;
+                            }
                             if(coordinates.size() == 2) {
                                 Point point = new Point(coordinates.get(0), coordinates.get(1));
                                 match.add(Criteria.where("createdAt").lte(end));
                                 match.add(Criteria.where("createdAt").gte(start));
                                 match.add(Criteria.where("accountId").is(account.getId()));
-                                NearQuery nearQuery = NearQuery.near(point).maxDistance(new Distance(0.1, Metrics.KILOMETERS));
+                                NearQuery nearQuery = NearQuery.near(point).maxDistance(new Distance(raidus, Metrics.KILOMETERS));
                                 criteria.andOperator(match.toArray(new Criteria[match.size()]));
                                 Aggregation agg = newAggregation(
                                         geoNear(nearQuery,  "distance"),

@@ -13,6 +13,7 @@ import java.util.Map;
 public final class GeoFence extends AbstractDocument {
     private String name;
     private String address;
+    private double radius;
     private Map<String, Object> geoLocation;
 
 }

@@ -67,7 +67,7 @@ public class SchedulerService {
         devicePositionRepository.deleteAll(devicePositions);
     }
 
-    @Scheduled(cron = "0 */32 * * * *")
+    @Scheduled(cron = "0 */2 * * * *")
     //@Scheduled(fixedDelay = 10000)
     public void updateGeofenceReport() {
         Calendar calendar = Calendar.getInstance();

@@ -100,6 +100,7 @@ public class SchedulerService {
                             }
                             if(coordinates.size() == 2) {
                                 Point point = new Point(coordinates.get(0), coordinates.get(1));
+                                logger.info("searching for GPS location with in range {} and {}", point.getX(), point.getY());
                                 match.add(Criteria.where("createdAt").lte(end));
                                 match.add(Criteria.where("createdAt").gte(start));
                                 match.add(Criteria.where("accountId").is(account.getId()));

@@ -49,7 +49,7 @@ public final class Receiver {
     @KafkaListener(topics = "${app.topic.deviceLocations}")
     public void listen(@Payload String message)  {
         try {
-            LOG.info("parsing payload "+ message);
+            LOG.debug("parsing payload "+ message);
             DevicePosition devicePositions = objectMapper.readValue(message, DevicePosition.class);
             process(devicePositions.getUniqueId().toString(), devicePositions);
         }catch (Exception e) {
@@ -76,7 +76,7 @@ public final class Receiver {
                 if(!deviceService.updateLatestLocation(device.getImei(), currentLocation)){
                     LOG.error("FAIL....");
                 } else {
-                    LOG.info("Done...");
+                    LOG.debug("Done...");
                 }
             } else {
                 //DevicePosition devicePosition = objectMapper.readValue(device.getAttrs().get("latestLocation"), DevicePosition.class);
@@ -112,7 +112,7 @@ public final class Receiver {
                             //compare to the lastHaltedTime to currentTime
 
                             if(device.getLastHaltedTime() != null){
-                               LOG.info("Device {} halted since {} for {}", device.getImei(), device.getLastHaltedTime(), System.currentTimeMillis() - device.getLastHaltedTime().getMillis());
+                               LOG.debug("Device {} halted since {} for {}", device.getImei(), device.getLastHaltedTime(), System.currentTimeMillis() - device.getLastHaltedTime().getMillis());
                                if(System.currentTimeMillis() - device.getLastHaltedTime().getMillis() > stopTime){
                                     currentLocation.setStopped(true);
                                }
@@ -128,7 +128,7 @@ public final class Receiver {
                                 if(updateResult.getModifiedCount() !=1){
                                     LOG.error("Failed to update lastHaltedTime on device {}-{} ", device.getImei());
                                 } else {
-                                    LOG.info("Updated lastHalted time to current time for device {}", device.getImei());
+                                    LOG.debug("Updated lastHalted time to current time for device {}", device.getImei());
                                     device = deviceService.findByImei(uniqueId);
                                 }
                             }
@@ -137,7 +137,7 @@ public final class Receiver {
                             currentLocation = devicePositionRepository.save(currentLocation);
                         } else {
                             if(lastLocation.isStopped()) {
-                                LOG.info("Updating stopped time in the last location");
+                                LOG.debug("Updating stopped time in the last location");
                                 Update update = new Update();
                                 update.set("stopDuration", System.currentTimeMillis() - device.getLastHaltedTime().getMillis());
                                 final Query query = new Query();
@@ -146,7 +146,7 @@ public final class Receiver {
                                 if(updateResult.getModifiedCount() !=1){
                                     LOG.error("Failed to update stop time for uniqueId {}-{} ", lastLocation.getUniqueId(),lastLocation.getId());
                                 } else {
-                                    LOG.info("Device started moving after {} - {}ms ",currentLocation.getUniqueId(), currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
+                                    LOG.debug("Device started moving after {} - {}ms ",currentLocation.getUniqueId(), currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
                                 }
                             }
                             currentLocation.setIdle(false);
@@ -160,7 +160,7 @@ public final class Receiver {
                             currentLocation = devicePositionRepository.save(currentLocation);
                         }
                     } else {
-                        LOG.info("no location was found in GPS Data");
+                        LOG.warn("no location was found in GPS Data");
                         KafkaController.createLocation(currentLocation);
                     }
                     if(deviceService.updateLatestLocation(device.getImei(), currentLocation)){

@@ -88,6 +88,7 @@ public class SchedulerService {
                                 return deviceId1;
                             }));
                     List<GeoFence> geoFences = geoFenceRepository.findByAccountId(account.getId());
+                    logger.info("found geofences in account {} size:{}" ,account.getId(), geoFences.size());
                     if(geoFences.size() > 0) {
                         geoFences.parallelStream().forEach(geoFence -> {
                             List<Criteria> match = new ArrayList<>();
@@ -115,6 +116,7 @@ public class SchedulerService {
                                 AggregationResults<Document> groupResults
                                         = mongoTemplate.aggregate(agg, DevicePosition.class, Document.class);
                                 List<Document> results = groupResults.getMappedResults();
+                                logger.info("found some reports {}", results.size());
                                 List<GeoFenceReport> fenceReports = new ArrayList<>();
                                 results.stream().forEach(result -> {
                                     fenceReports.add(new GeoFenceReport(result.getString("id"),

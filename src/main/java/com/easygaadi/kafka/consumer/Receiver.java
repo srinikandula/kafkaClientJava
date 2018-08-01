@@ -49,7 +49,6 @@ public final class Receiver {
     @KafkaListener(topics = "${app.topic.deviceLocations}")
     public void listen(@Payload String message)  {
         try {
-            LOG.debug("parsing payload "+ message);
             DevicePosition devicePositions = objectMapper.readValue(message, DevicePosition.class);
             process(devicePositions.getUniqueId().toString(), devicePositions);
         }catch (Exception e) {
@@ -112,7 +111,7 @@ public final class Receiver {
                             //compare to the lastHaltedTime to currentTime
 
                             if(device.getLastHaltedTime() != null){
-                               LOG.debug("Device {} halted since {} for {}", device.getImei(), device.getLastHaltedTime(), System.currentTimeMillis() - device.getLastHaltedTime().getMillis());
+                               //LOG.debug("Device {} halted since {} for {}", device.getImei(), device.getLastHaltedTime(), System.currentTimeMillis() - device.getLastHaltedTime().getMillis());
                                if(System.currentTimeMillis() - device.getLastHaltedTime().getMillis() > stopTime){
                                     currentLocation.setStopped(true);
                                }
@@ -143,11 +142,11 @@ public final class Receiver {
                                 final Query query = new Query();
                                 query.addCriteria(where("_id").is(lastLocation.getId()));
                                 UpdateResult updateResult =  mongoTemplate.updateMulti(query, update, DevicePosition.class);
-                                if(updateResult.getModifiedCount() !=1){
+                                /*if(updateResult.getModifiedCount() !=1){
                                     LOG.error("Failed to update stop time for uniqueId {}-{} ", lastLocation.getUniqueId(),lastLocation.getId());
                                 } else {
                                     LOG.debug("Device started moving after {} - {}ms ",currentLocation.getUniqueId(), currentLocation.getDeviceTime() - lastLocation.getDeviceTime());
-                                }
+                                }*/
                             }
                             currentLocation.setIdle(false);
                             currentLocation.setStopped(false);

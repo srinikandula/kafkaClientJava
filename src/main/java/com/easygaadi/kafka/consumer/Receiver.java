@@ -82,7 +82,7 @@ public final class Receiver {
                 //LOG.error("address : {}", devicePosition.getAddress());
                 GpsSettings accountSettings = accountGPSSettings.get(device.getAccountId());
                 if(accountSettings == null){
-                    accountSettings = gpsSettingsRepository.findByAccountId(new ObjectId(device.getAccountId().toString()));
+                    accountSettings = gpsSettingsRepository.findByAccountId(device.getAccountId());
                     accountGPSSettings.put(device.getAccountId().toString(), accountSettings);
                 }
                 long stopTime = 10 * 60000;

@@ -9,6 +9,6 @@ import org.springframework.data.repository.CrudRepository;
  * @author Petri Kainulainen
  */
 public interface GpsSettingsRepository extends CrudRepository<GpsSettings, String> {
-    GpsSettings findByAccountId(ObjectId accountId);
+    GpsSettings findByAccountId(String accountId);
 
 }

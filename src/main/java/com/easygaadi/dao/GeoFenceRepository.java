@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface GeoFenceRepository extends CrudRepository<GeoFence, String> {
-    List<GeoFence> findByAccountId(ObjectId accountId);
+    List<GeoFence> findByAccountId(String accountId);
 }

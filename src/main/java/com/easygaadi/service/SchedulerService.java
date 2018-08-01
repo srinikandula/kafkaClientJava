@@ -87,7 +87,7 @@ public class SchedulerService {
                                 logger.info("Duplicate deviceId found {} in account {}", deviceId1, account.getUserName());
                                 return deviceId1;
                             }));
-                    List<GeoFence> geoFences = geoFenceRepository.findByAccountId(new ObjectId(account.getId()));
+                    List<GeoFence> geoFences = geoFenceRepository.findByAccountId(account.getId());
                     if(geoFences.size() > 0) {
                         geoFences.parallelStream().forEach(geoFence -> {
                             List<Criteria> match = new ArrayList<>();

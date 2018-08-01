@@ -127,7 +127,7 @@ public final class Receiver {
                                 if(updateResult.getModifiedCount() !=1){
                                     LOG.error("Failed to update lastHaltedTime on device {}-{} ", device.getImei());
                                 } else {
-                                    LOG.debug("Updated lastHalted time to current time for device {}", device.getImei());
+                                    //LOG.debug("Updated lastHalted time to current time for device {}", device.getImei());
                                     device = deviceService.findByImei(uniqueId);
                                 }
                             }
@@ -136,7 +136,7 @@ public final class Receiver {
                             currentLocation = devicePositionRepository.save(currentLocation);
                         } else {
                             if(lastLocation.isStopped()) {
-                                LOG.debug("Updating stopped time in the last location");
+                                //LOG.debug("Updating stopped time in the last location");
                                 Update update = new Update();
                                 update.set("stopDuration", System.currentTimeMillis() - device.getLastHaltedTime().getMillis());
                                 final Query query = new Query();

@@ -119,7 +119,7 @@ public class SchedulerService {
                                 logger.info("found some reports {}", results.size());
                                 List<GeoFenceReport> fenceReports = new ArrayList<>();
                                 results.stream().forEach(result -> {
-                                    fenceReports.add(new GeoFenceReport(result.getString("id"),
+                                    fenceReports.add(new GeoFenceReport(account.getId(),result.getString("id"),
                                             deviceIdTruckRegMap.get(result.getString("id")),
                                             geoFence.getName(), result.getDate("start"),
                                             result.getDate("end")));

@@ -18,4 +18,12 @@ public final class GeoFenceReport extends AbstractDocument {
     private String depot;
     private Date start;
     private Date end;
+    public GeoFenceReport(String accountId, String deviceId, String registrationNo, String depot, Date start, Date end) {
+        this.setAccountId(accountId);
+        this.deviceId = deviceId;
+        this.registrationNo = registrationNo;
+        this.depot = depot;
+        this.start = start;
+        this.end = end;
+    }
 }

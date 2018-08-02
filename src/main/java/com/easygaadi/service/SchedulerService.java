@@ -79,7 +79,8 @@ public class SchedulerService {
         List<Account> accounts = accountRepository.findByRouteConfigEnabled(true);
         accounts.stream().forEach(account -> {
             if(account.isRouteConfigEnabled()){
-                List<Truck> trucks = truckRepository.findByAccountId(new ObjectId(account.getId()));
+                List<Truck> trucks = truckRepository.findByAccountId(account.getId());
+                logger.info("found trucks in account {}", trucks.size());
                 if(trucks != null || trucks.size() > 0){
                     Map<String, String> deviceIdTruckRegMap = trucks.stream().collect(
                             Collectors.toMap(x -> x.getDeviceId(), x -> x.getRegistrationNo(),

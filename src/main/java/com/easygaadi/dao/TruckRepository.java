@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface TruckRepository extends CrudRepository<Truck, String> {
-    List<Truck> findByAccountId(ObjectId accountId);
+    List<Truck> findByAccountId(String accountId);
 }

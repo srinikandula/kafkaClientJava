@@ -125,8 +125,8 @@ public class SchedulerService {
                                             deviceIdTruckRegMap.get(result.getString("_id")),
                                             result.getString("_id"), result.getDate("start"),
                                             result.getDate("end"));
-                                    fenceReports.add(new GeoFenceReport(account.getId(),result.getString("id"),
-                                            deviceIdTruckRegMap.get(result.getString("id")),
+                                    fenceReports.add(new GeoFenceReport(account.getId(),result.getString("_id"),
+                                            deviceIdTruckRegMap.get(result.getString("_id")),
                                             geoFence.getName(), result.getDate("start"),
                                             result.getDate("end")));
                                 });

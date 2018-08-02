@@ -37,6 +37,8 @@ $kafka_home/bin/kafka-topics.sh --create --topic devicePositions --replication-f
 #create topic
 $kafka_home/bin/kafka-topics.sh --create --topic devicePositions --replication-factor 1 --partitions 3 --zookeeper localhost:2181
 
+$kafka_home/bin/kafka-topics.sh --create --topic devicePositions --replication-factor 1 --partitions 2 --zookeeper localhost:2181
+
 
 #delete
 $kafka_home/bin/kafka-topics.sh --delete --zookeeper localhost:2181 --topic devicePositions

@@ -88,6 +88,7 @@ public class SchedulerService {
                                 logger.info("Duplicate deviceId found {} in account {}", deviceId1, account.getUserName());
                                 return deviceId1;
                             }));
+                    logger.info("truck Map {}", deviceIdTruckRegMap);
                     List<GeoFence> geoFences = geoFenceRepository.findByAccountId(account.getId());
                     logger.info("found geofences in account {} size:{}" ,account.getId(), geoFences.size());
                     if(geoFences.size() > 0) {
@@ -121,8 +122,8 @@ public class SchedulerService {
                                 List<GeoFenceReport> fenceReports = new ArrayList<>();
                                 results.stream().forEach(result -> {
                                     logger.info("depot {} truck {} deviceId {} start {} end {}", geoFence.getName(),
-                                            deviceIdTruckRegMap.get(result.getString("id")),
-                                            result.getString("id"), result.getDate("start"),
+                                            deviceIdTruckRegMap.get(result.getString("_id")),
+                                            result.getString("_id"), result.getDate("start"),
                                             result.getDate("end"));
                                     fenceReports.add(new GeoFenceReport(account.getId(),result.getString("id"),
                                             deviceIdTruckRegMap.get(result.getString("id")),

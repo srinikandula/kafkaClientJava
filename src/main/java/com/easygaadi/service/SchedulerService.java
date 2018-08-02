@@ -67,7 +67,7 @@ public class SchedulerService {
         devicePositionRepository.deleteAll(devicePositions);
     }
 
-    @Scheduled(cron = "0 */2 * * * *")
+    @Scheduled(cron = "0 */30 * * * *")
     //@Scheduled(fixedDelay = 10000)
     public void updateGeofenceReport() {
         Calendar calendar = Calendar.getInstance();
@@ -102,8 +102,8 @@ public class SchedulerService {
                             if(coordinates.size() == 2) {
                                 Point point = new Point(coordinates.get(1), coordinates.get(0));
                                 logger.info("searching for GPS location with in range {} and {}", point.getX(), point.getY());
-                                //match.add(Criteria.where("createdAt").lte(end));
-                                //match.add(Criteria.where("createdAt").gte(start));
+                                match.add(Criteria.where("createdAt").lte(end));
+                                match.add(Criteria.where("createdAt").gte(start));
                                 match.add(Criteria.where("accountId").is(account.getId()));
                                 NearQuery nearQuery = NearQuery.near(point).maxDistance(new Distance(raidus, Metrics.KILOMETERS));
                                 criteria.andOperator(match.toArray(new Criteria[match.size()]));

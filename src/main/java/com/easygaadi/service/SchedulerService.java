@@ -100,10 +100,10 @@ public class SchedulerService {
                                 raidus = geoFence.getRadius()/100;
                             }
                             if(coordinates.size() == 2) {
-                                Point point = new Point(coordinates.get(0), coordinates.get(1));
+                                Point point = new Point(coordinates.get(1), coordinates.get(0));
                                 logger.info("searching for GPS location with in range {} and {}", point.getX(), point.getY());
-                                match.add(Criteria.where("createdAt").lte(end));
-                                match.add(Criteria.where("createdAt").gte(start));
+                                //match.add(Criteria.where("createdAt").lte(end));
+                                //match.add(Criteria.where("createdAt").gte(start));
                                 match.add(Criteria.where("accountId").is(account.getId()));
                                 NearQuery nearQuery = NearQuery.near(point).maxDistance(new Distance(raidus, Metrics.KILOMETERS));
                                 criteria.andOperator(match.toArray(new Criteria[match.size()]));

@@ -29,8 +29,6 @@ public abstract class AbstractDocument {
     @Field(KEY_ID)
     private String id;
 
-    private String accountId;
-
     @CreatedDate
     @Field(KEY_CREATED_AT)
     private Date createdAt;

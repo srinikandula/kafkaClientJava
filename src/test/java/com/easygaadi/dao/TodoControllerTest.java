@@ -1,13 +1,9 @@
 package com.easygaadi.dao;
 
-import com.easygaadi.dao.TodoController;
-import com.easygaadi.dao.TodoDTO;
-import com.easygaadi.dao.TodoService;
 import com.easygaadi.error.RestErrorHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -21,24 +17,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHan
 
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
-import static com.easygaadi.dao.TodoDTOAssert.assertThatTodoDTO;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author Petri Kainulainen

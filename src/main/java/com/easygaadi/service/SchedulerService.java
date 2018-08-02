@@ -79,7 +79,7 @@ public class SchedulerService {
         List<Account> accounts = accountRepository.findByRouteConfigEnabled(true);
         accounts.stream().forEach(account -> {
             if(account.isRouteConfigEnabled()){
-                List<Truck> trucks = truckRepository.findByAccountId(account.getId());
+                List<Truck> trucks = truckRepository.findByAccountId(new ObjectId(account.getId()));
                 logger.info("found trucks in account {}", trucks.size());
                 if(trucks != null || trucks.size() > 0){
                     Map<String, String> deviceIdTruckRegMap = trucks.stream().collect(
@@ -122,7 +122,7 @@ public class SchedulerService {
                                 results.stream().forEach(result -> {
                                     logger.info("depot {} truck {} deviceId {} start {} end {}", geoFence.getName(),
                                             deviceIdTruckRegMap.get(result.getString("id")),
-                                            geoFence.getName(), result.getDate("start"),
+                                            result.getString("id"), result.getDate("start"),
                                             result.getDate("end"));
                                     fenceReports.add(new GeoFenceReport(account.getId(),result.getString("id"),
                                             deviceIdTruckRegMap.get(result.getString("id")),

@@ -15,5 +15,6 @@ public final class GeoFence extends AbstractDocument {
     private String address;
     private double radius;
     private Map<String, Object> geoLocation;
+    private String accountId;
 
 }

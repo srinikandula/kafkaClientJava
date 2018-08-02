@@ -67,7 +67,7 @@ public class SchedulerService {
         devicePositionRepository.deleteAll(devicePositions);
     }
 
-    @Scheduled(cron = "0 */30 * * * *")
+    @Scheduled(cron = "0 */2 * * * *")
     //@Scheduled(fixedDelay = 10000)
     public void updateGeofenceReport() {
         Calendar calendar = Calendar.getInstance();
@@ -119,6 +119,10 @@ public class SchedulerService {
                                 logger.info("found some reports {}", results.size());
                                 List<GeoFenceReport> fenceReports = new ArrayList<>();
                                 results.stream().forEach(result -> {
+                                    logger.info("depot {} truck {} deviceId {} start {} end {}", geoFence.getName(),
+                                            deviceIdTruckRegMap.get(result.getString("id")),
+                                            geoFence.getName(), result.getDate("start"),
+                                            result.getDate("end"));
                                     fenceReports.add(new GeoFenceReport(account.getId(),result.getString("id"),
                                             deviceIdTruckRegMap.get(result.getString("id")),
                                             geoFence.getName(), result.getDate("start"),

@@ -67,4 +67,5 @@ public class DevicePosition extends AbstractDocument {
     private double timeSecond;
     private Map<String, Object> location;
     private Map<String, Object> attributes;
+    private String accountId;
 }

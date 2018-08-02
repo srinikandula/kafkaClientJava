@@ -63,8 +63,9 @@ public final class Receiver {
         if(device == null){
             LOG.error("unknown position: {}", currentLocation);
         } else {
-
-            currentLocation.setAccountId(device.getAccountId().toString());
+            if(device.getAccountId() != null) {
+                currentLocation.setAccountId(device.getAccountId().toString());
+            }
             if(device.getAttrs() == null || device.getAttrs().get("latestLocation") == null){
                 LOG.warn("no last location was found");
                 currentLocation.setDistance(0);

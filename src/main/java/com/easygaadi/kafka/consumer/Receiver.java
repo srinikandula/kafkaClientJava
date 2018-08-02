@@ -84,7 +84,7 @@ public final class Receiver {
                 GpsSettings accountSettings = accountGPSSettings.get(device.getAccountId());
                 if(accountSettings == null){
                     accountSettings = gpsSettingsRepository.findByAccountId(device.getAccountId());
-                    if(accountSettings != null) {
+                    if(accountSettings != null && device.getAccountId() != null) {
                         accountGPSSettings.put(device.getAccountId().toString(), accountSettings);
                     }
                 }

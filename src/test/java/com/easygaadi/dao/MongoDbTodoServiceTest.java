@@ -34,12 +34,12 @@ public class MongoDbTodoServiceTest {
     @Mock
     private TodoRepository repository;
 
-    private TodoServiceImpl service;
+    //private TodoServiceImpl service;
 
-    @Before
-    public void setUp() {
-        this.service = new TodoServiceImpl(repository);
-    }
+   // @Before
+    //public void setUp() {
+    //    this.service = new TodoServiceImpl(repository);
+    //}
     @Test
     public void test(){
 

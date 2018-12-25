@@ -43,5 +43,6 @@ import java.util.Map;
 public class ArchivedDevicePosition extends DevicePosition {
     public ArchivedDevicePosition(DevicePosition devicePosition){
         BeanUtils.copyProperties(devicePosition, this);
+        this.setId(null);
     }
 }

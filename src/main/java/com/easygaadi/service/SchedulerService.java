@@ -62,7 +62,6 @@ public class SchedulerService {
         List<DevicePosition> devicePositions = mongoTemplate.find(q, DevicePosition.class);
         logger.info("archiving devicePositions before {}, count {}", calendar.getTime(), devicePositions.size());
         devicePositions.stream().forEach( devicePosition -> {
-            devicePosition.setId(null);
             archivedDevicePositionRepository.save(new ArchivedDevicePosition(devicePosition));
         });
         devicePositionRepository.deleteAll(devicePositions);

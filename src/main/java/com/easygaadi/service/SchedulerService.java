@@ -51,7 +51,7 @@ public class SchedulerService {
     @Autowired
     private TruckRepository truckRepository;
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "*/30 * * * * *")
     //@Scheduled(fixedDelay = 5000)
     public void archiveDevicePositions() {
         Calendar calendar = Calendar.getInstance();
